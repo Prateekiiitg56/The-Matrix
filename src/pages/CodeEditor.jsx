@@ -190,6 +190,28 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
         }
     };
 
+    const cleanMarkdown = (text) => {
+        if (!text) return '';
+        return text
+            .replace(/\\n/g, '\n')
+            .replace(/&quot;/g, '"')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/&#39;/g, "'")
+            .replace(/<strong[^>]*>/g, '**')
+            .replace(/<span[^>]*>/g, '')
+            .replace(/<\/span>/g, '')
+            .replace(/<em[^>]*>/g, '*')
+            .replace(/<sup[^>]*>/g, '^')
+            .replace(/<\/sup>/g, '')
+            .replace(/<sub[^>]*>/g, '_')
+            .replace(/<\/sub>/g, '')
+            .replace(/<[^>]*>/g, '')
+            .replace(/\*\*\*\*/g, '**')
+            .replace(/\*\*\*\*\*\*/g, '**');
+    };
+
     if (loading || !problem) {
         return (
             <div className="flex-1 flex items-center justify-center h-[calc(100vh-57px)] text-accent-dim font-code animate-pulse tracking-[4px]">
@@ -257,7 +279,7 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
                                 li: ({ node, ...props }) => <li className="pl-1 marker:text-accent-dim" {...props} />
                             }}
                         >
-                            {problem.description}
+                            {cleanMarkdown(problem.description)}
                         </ReactMarkdown>
                     </div>
 
