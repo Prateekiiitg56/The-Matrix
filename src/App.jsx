@@ -9,9 +9,10 @@ import AIHintsPanel from './components/ui/AIHintsPanel';
 import MatrixRain from './components/ui/MatrixRain';
 
 function App() {
-  const [activePanel, setActivePanel] = useState('editor');
+  const [activePanel, setActivePanel] = useState('search');
   const [activeLanguage, setLanguage] = useState('python');
   const [isAIOpen, setIsAIOpen] = useState(false);
+  const [activeProblemId, setActiveProblemId] = useState(null);
 
   const handleSetPanel = (panel) => {
     if (panel === 'ai-hints') {
@@ -38,10 +39,10 @@ function App() {
           <div className="flex-1 flex flex-col relative w-[calc(100vw-56px)] bg-transparent">
 
             {/* Main View Switcher */}
-            {activePanel === 'search' && <Search setActivePanel={handleSetPanel} />}
+            {activePanel === 'search' && <Search setActivePanel={handleSetPanel} setActiveProblemId={setActiveProblemId} />}
             {activePanel === 'my-questions' && <MyQuestions />}
             {activePanel === 'streak' && <Streak />}
-            {activePanel === 'editor' && <CodeEditor activeLanguage={activeLanguage} />}
+            {activePanel === 'editor' && <CodeEditor activeLanguage={activeLanguage} activeProblemId={activeProblemId} setActiveProblemId={setActiveProblemId} />}
 
             {/* Floating AI Panel */}
             <AIHintsPanel isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />

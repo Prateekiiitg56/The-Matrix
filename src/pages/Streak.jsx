@@ -4,7 +4,8 @@ import { Flame, Star, Trophy } from 'lucide-react';
 export default function Streak() {
     const weeks = 52;
     const days = 7;
-    const generateIntensity = () => Math.floor(Math.random() * 5); // 0 to 4
+    // Set to 0 to simulate empty user account state
+    const generateIntensity = () => 0;
 
     return (
         <div className="flex-1 flex flex-col h-[calc(100vh-57px)] overflow-y-auto bg-transparent text-accent-primary p-6 px-10 items-center scrollbar-hide">
@@ -25,22 +26,22 @@ export default function Streak() {
                 <div className="grid grid-cols-4 gap-3 mb-8">
                     <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden group">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
-                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt">7</div>
+                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">0</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">CURRENT STREAK</div>
                     </div>
                     <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
-                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt">23</div>
+                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">0</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">LONGEST STREAK</div>
                     </div>
                     <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
-                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt">124</div>
+                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">0</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">TOTAL SOLVED</div>
                     </div>
                     <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
-                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt">2026</div>
+                        <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">2026</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">YEAR</div>
                     </div>
                 </div>

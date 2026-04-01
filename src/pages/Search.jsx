@@ -1,21 +1,52 @@
 import { cn } from '../lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const mockProblems = [
-    { id: 1, title: 'Two Sum', difficulty: 'Easy', tags: ['Array', 'Hash Table'], status: 'solved' },
-    { id: 2, title: 'Add Two Numbers', difficulty: 'Medium', tags: ['Linked List', 'Math'], status: 'unsolved' },
-    { id: 3, title: 'Longest Substring Without Repeating Characters', difficulty: 'Medium', tags: ['Hash Table', 'String', 'Sliding Window'], status: 'unsolved' },
-    { id: 4, title: 'Median of Two Sorted Arrays', difficulty: 'Hard', tags: ['Array', 'Binary Search', 'Divide and Conquer'], status: 'attempted' },
+const mockProblemsFallback = [
+    { problemId: 1, title: 'Two Sum', difficulty: 'Easy', tags: ['Array', 'Hash Table'], status: 'unsolved' },
+    { problemId: 2, title: 'Valid Parentheses', difficulty: 'Easy', tags: ['String', 'Stack'], status: 'unsolved' },
+    { problemId: 3, title: 'Merge Intervals', difficulty: 'Medium', tags: ['Array', 'Sorting'], status: 'unsolved' },
 ];
 
-export default function Search({ setActivePanel }) {
+export default function Search({ setActivePanel, setActiveProblemId }) {
     const [query, setQuery] = useState('');
     const [activeDiff, setActiveDiff] = useState('all');
     const [activeTopics, setActiveTopics] = useState([]);
+    const [problems, setProblems] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://localhost:5000/api/problems')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    setProblems(data);
+                } else {
+                    setProblems(mockProblemsFallback);
+                }
+            })
+            .catch(err => {
+                console.warn('Backend not strictly reachable, using fallback:', err);
+                setProblems(mockProblemsFallback);
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
     const toggleTopic = (topic) => {
         setActiveTopics(prev => prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]);
     };
+
+    const handleSolveClick = (id) => {
+        setActiveProblemId(id);
+        setActivePanel('editor');
+    }
+
+    // Frontend filtering logic
+    const filteredProblems = problems.filter(p => {
+        const matchesSearch = p.title.toLowerCase().includes(query.toLowerCase());
+        const matchesDiff = activeDiff === 'all' || p.difficulty === activeDiff;
+        const matchesTopic = activeTopics.length === 0 || activeTopics.some(t => p.tags.includes(t));
+        return matchesSearch && matchesDiff && matchesTopic;
+    });
 
     return (
         <div className="flex-1 flex flex-col h-[calc(100vh-57px)] overflow-y-auto bg-transparent text-accent-primary p-6 px-10 items-center scrollbar-hide">
@@ -23,13 +54,16 @@ export default function Search({ setActivePanel }) {
             <div className="w-full max-w-5xl flex flex-col pt-4">
 
                 {/* Section Header */}
-                <div className="mb-6 pb-3 border-b border-subtle-line">
-                    <div className="font-display text-[14px] font-bold tracking-[4px] text-accent-primary text-glow-alt">
-            // PROBLEM SEARCH
+                <div className="mb-6 pb-3 border-b border-subtle-line flex justify-between items-end">
+                    <div>
+                        <div className="font-display text-[14px] font-bold tracking-[4px] text-accent-primary text-glow-alt">
+              // PROBLEM SEARCH
+                        </div>
+                        <div className="text-[12px] text-muted-text mt-1 tracking-[2px] font-code">
+                            QUERY THE MATRIX DATABASE
+                        </div>
                     </div>
-                    <div className="text-[12px] text-muted-text mt-1 tracking-[2px] font-code">
-                        QUERY THE MATRIX DATABASE
-                    </div>
+                    {loading && <div className="text-[10px] tracking-[2px] font-code text-accent-dim animate-pulse">SYNCING WITH CORE...</div>}
                 </div>
 
                 {/* Search Input */}
@@ -53,30 +87,30 @@ export default function Search({ setActivePanel }) {
 
                     <div className="w-px h-4 bg-subtle-line self-center mx-1" />
 
-                    {['ARRAY', 'HASHMAP', 'TREE', 'DP', 'GRAPH'].map(topic => (
-                        <button key={topic} onClick={() => toggleTopic(topic)} className={cn("px-3 py-1 border rounded-[3px] text-[11px] font-code cursor-pointer transition-all tracking-[1px]", activeTopics.includes(topic) ? "border-accent-primary text-accent-primary bg-raised-dark shadow-glow-sm" : "border-subtle-line text-muted-text hover:border-accent-primary hover:text-accent-primary hover:shadow-[0_0_8px_rgba(0,255,65,0.05)]")}>{topic}</button>
+                    {['Array', 'Hash Table', 'Tree', 'Stack', 'Sorting'].map(topic => (
+                        <button key={topic} onClick={() => toggleTopic(topic)} className={cn("px-3 py-1 border rounded-[3px] text-[11px] font-code cursor-pointer transition-all tracking-[1px]", activeTopics.includes(topic) ? "border-accent-primary text-accent-primary bg-raised-dark shadow-glow-sm" : "border-subtle-line text-muted-text hover:border-accent-primary hover:text-accent-primary hover:shadow-[0_0_8px_rgba(0,255,65,0.05)]")}>{topic.toUpperCase()}</button>
                     ))}
                 </div>
 
                 {/* Results List */}
                 <div className="flex flex-col gap-1.5 w-full">
-                    {mockProblems.map((p) => (
-                        <div key={p.id} className="group flex items-center gap-3 bg-editor-dark hover:border-border-focus border border-subtle-line rounded p-3 transition-all hover:shadow-[0_0_20px_rgba(0,255,65,0.05)] hover:translate-x-[2px] relative overflow-hidden">
+                    {filteredProblems.map((p) => (
+                        <div key={p.problemId} className="group flex items-center gap-3 bg-editor-dark hover:border-border-focus border border-subtle-line rounded p-3 transition-all hover:shadow-[0_0_20px_rgba(0,255,65,0.05)] hover:translate-x-[2px] relative overflow-hidden">
                             {/* Neon green left bar on hover */}
                             <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-accent-dim pointer-events-none group-hover:bg-accent-primary transition-colors group-hover:shadow-[0_0_8px_#00ff41]" />
 
                             {/* Title */}
                             <div className="flex-1 flex items-center gap-3 ml-2">
-                                <span className="text-muted-text font-code text-[12px] min-w-[30px]">#{p.id}</span>
-                                <span className="text-text-alt font-code text-[13px] group-hover:text-accent-primary transition-colors cursor-pointer" onClick={() => setActivePanel('editor')}>
+                                <span className="text-muted-text font-code text-[12px] min-w-[30px]">#{p.problemId}</span>
+                                <span className="text-text-alt font-code text-[13px] group-hover:text-accent-primary transition-colors cursor-pointer" onClick={() => handleSolveClick(p.problemId)}>
                                     {p.title}
                                 </span>
                             </div>
 
                             {/* Tags */}
-                            <div className="flex gap-1.5">
-                                {p.tags.map(tag => (
-                                    <span key={tag} className="text-[10px] px-2 py-0.5 rounded-sm bg-raised-dark border border-subtle-line text-muted-text font-code tracking-[1px] uppercase">
+                            <div className="flex gap-1.5 flex-wrap hidden md:flex">
+                                {p.tags?.slice(0, 3).map(tag => (
+                                    <span key={tag} className="text-[10px] px-2 py-0.5 rounded-sm bg-raised-dark border border-subtle-line text-muted-text font-code tracking-[1px] uppercase whitespace-nowrap">
                                         {tag}
                                     </span>
                                 ))}
@@ -95,7 +129,7 @@ export default function Search({ setActivePanel }) {
                             </div>
 
                             {/* Action */}
-                            <button onClick={() => setActivePanel('editor')} className="px-3.5 py-1.5 border border-accent-dim rounded-sm bg-transparent text-accent-primary font-code text-[11px] tracking-[1px] cursor-pointer transition-all whitespace-nowrap hover:bg-[#00441a] hover:border-accent-primary hover:shadow-glow-sm">
+                            <button onClick={() => handleSolveClick(p.problemId)} className="px-3.5 py-1.5 border border-accent-dim rounded-sm bg-transparent text-accent-primary font-code text-[11px] tracking-[1px] cursor-pointer transition-all whitespace-nowrap hover:bg-[#00441a] hover:border-accent-primary hover:shadow-glow-sm">
                                 SOLVE ▶
                             </button>
 
