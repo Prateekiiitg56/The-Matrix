@@ -1,41 +1,43 @@
-import { Flame, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Flame, CheckCircle2 } from 'lucide-react';
 
 export default function TopBar({ activeLanguage, setLanguage }) {
     return (
-        <header className="h-14 border-b border-subtle-line bg-editor-dark flex items-center justify-between px-6 z-10 shrink-0">
-            <div className="flex items-center gap-4">
-                <h1 className="text-body-text font-display font-bold tracking-tight select-none">
-                    LATE<span className="text-accent-primary">CODE</span>
+        <header className="h-[57px] border-b border-border-focus bg-[rgba(0,8,0,0.95)] backdrop-blur shadow-glow-sm flex items-center justify-between px-6 z-[100] shrink-0 sticky top-0">
+            <div className="flex flex-col select-none">
+                <h1 className="text-accent-primary font-display font-black text-[18px] tracking-[4px] text-glow">
+                    THE MATRIX
                 </h1>
-                <div className="h-5 w-px bg-subtle-line" />
+                <span className="text-accent-dim font-display text-[11px] tracking-[8px] mt-0.5">
+                    DSA TRACKER v2.0
+                </span>
+            </div>
 
+            <div className="flex items-center gap-4">
                 {/* Streak Pill */}
-                <div className="flex items-center gap-1.5 bg-raised-dark px-3 py-1 rounded-full text-sm font-ui border border-subtle-line cursor-pointer hover:border-accent-secondary transition-colors">
-                    <Flame size={16} className="text-med-diff" />
-                    <span className="text-body-text font-medium">12 Day Streak</span>
+                <div className="flex items-center gap-2 bg-editor-dark px-3.5 py-1.5 rounded border border-border-focus glow-pulse cursor-pointer">
+                    <Flame size={14} className="text-med-diff" />
+                    <span className="text-accent-primary font-display font-bold text-[16px] text-glow">7</span>
+                    <span className="text-[11px] text-muted-text tracking-[1px] font-ui">DAY STREAK</span>
                 </div>
 
                 {/* Today's Count */}
-                <div className="flex items-center gap-1.5 bg-raised-dark px-3 py-1 rounded-full text-sm font-ui border border-subtle-line cursor-pointer hover:border-accent-primary transition-colors">
-                    <CheckCircle2 size={16} className="text-accent-primary" />
-                    <span className="text-body-text font-medium">3 Solved Today</span>
+                <div className="flex items-center gap-2 border-l border-subtle-line pl-4">
+                    <span className="text-accent-secondary font-display font-bold text-[14px]">3</span>
+                    <span className="text-[11px] text-muted-text tracking-[1px] font-ui">SOLVED TODAY</span>
                 </div>
-            </div>
 
-            <div className="flex items-center gap-3">
+                <div className="h-6 w-px bg-subtle-line mx-2" />
+
                 <div className="relative">
                     <select
                         value={activeLanguage}
                         onChange={(e) => setLanguage(e.target.value)}
-                        className="appearance-none bg-raised-dark border border-subtle-line text-body-text font-ui text-sm rounded-md px-3 py-1.5 focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary w-28 cursor-pointer"
+                        className="appearance-none bg-raised-dark border border-subtle-line text-accent-primary font-code text-xs rounded px-3 py-1 focus:outline-none focus:border-accent-primary focus:shadow-glow w-24 cursor-pointer"
                     >
                         <option value="python">Python</option>
                         <option value="java">Java</option>
                         <option value="cpp">C++</option>
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-text">
-                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
-                    </div>
                 </div>
             </div>
         </header>

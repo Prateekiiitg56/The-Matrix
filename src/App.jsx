@@ -6,6 +6,7 @@ import MyQuestions from './pages/MyQuestions';
 import Streak from './pages/Streak';
 import CodeEditor from './pages/CodeEditor';
 import AIHintsPanel from './components/ui/AIHintsPanel';
+import MatrixRain from './components/ui/MatrixRain';
 
 function App() {
   const [activePanel, setActivePanel] = useState('editor');
@@ -21,24 +22,34 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-void-black text-body-text overflow-hidden font-ui">
-      {/* Fixed Left Sidebar */}
-      <Sidebar activePanel={activePanel} setActivePanel={handleSetPanel} />
+    <>
+      <MatrixRain />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative w-[calc(100vw-48px)]">
+      <div className="flex flex-col h-screen bg-transparent text-accent-primary overflow-hidden font-code relative z-10">
+
+        {/* Top Bar now spans fully across */}
         <TopBar activeLanguage={activeLanguage} setLanguage={setLanguage} />
 
-        {/* Main View Switcher */}
-        {activePanel === 'search' && <Search setActivePanel={handleSetPanel} />}
-        {activePanel === 'my-questions' && <MyQuestions />}
-        {activePanel === 'streak' && <Streak />}
-        {activePanel === 'editor' && <CodeEditor activeLanguage={activeLanguage} />}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Fixed Left Sidebar */}
+          <Sidebar activePanel={activePanel} setActivePanel={handleSetPanel} />
 
-        {/* Floating AI Panel */}
-        <AIHintsPanel isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col relative w-[calc(100vw-56px)] bg-transparent">
+
+            {/* Main View Switcher */}
+            {activePanel === 'search' && <Search setActivePanel={handleSetPanel} />}
+            {activePanel === 'my-questions' && <MyQuestions />}
+            {activePanel === 'streak' && <Streak />}
+            {activePanel === 'editor' && <CodeEditor activeLanguage={activeLanguage} />}
+
+            {/* Floating AI Panel */}
+            <AIHintsPanel isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
+          </div>
+        </div>
+
       </div>
-    </div>
+    </>
   );
 }
 

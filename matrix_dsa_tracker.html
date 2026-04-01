@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>THE MATRIX — DSA TRACKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --black:#000300;
+  --deep:#010a01;
+  --surface:#020f02;
+  --card:#041404;
+  --card2:#061806;
+  --border:#0a3d0a;
+  --border2:#0f5a0f;
+  --green:#00ff41;
+  --green2:#00cc33;
+  --green3:#008f11;
+  --green4:#003b00;
+  --green-dim:#00441a;
+  --green-glow:rgba(0,255,65,0.15);
+  --green-glow2:rgba(0,255,65,0.05);
+  --text:#00ff41;
+  --text2:#00cc33;
+  --text3:#008f11;
+  --muted:#1a5c1a;
+  --easy:#00ff41;
+  --medium:#ffe135;
+  --hard:#ff3131;
+  --font-mono:'Share Tech Mono',monospace;
+  --font-display:'Orbitron',monospace;
+  --font-vt:'VT323',monospace;
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--black);
+  color:var(--green);
+  font-family:var(--font-mono);
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:default;
+}
+
+/* ── MATRIX RAIN CANVAS ── */
+#matrix-rain{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;opacity:0.07;pointer-events:none;
+}
+
+/* ── SCANLINES ── */
+body::after{
+  content:'';
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  z-index:1;pointer-events:none;
+}
+
+/* ── LAYOUT ── */
+#app{position:relative;z-index:2;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── TOP BAR ── */
+#topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;
+  background:rgba(0,8,0,0.95);
+  border-bottom:1px solid var(--border2);
+  box-shadow:0 0 30px rgba(0,255,65,0.1);
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(8px);
+}
+
+.logo{
+  font-family:var(--font-display);
+  font-size:18px;font-weight:900;
+  color:var(--green);
+  text-shadow:0 0 20px var(--green),0 0 40px rgba(0,255,65,0.5);
+  letter-spacing:4px;
+}
+.logo span{color:var(--green3);font-size:11px;display:block;letter-spacing:8px;margin-top:2px}
+
+.topbar-right{display:flex;align-items:center;gap:16px}
+
+.streak-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 14px;
+  border:1px solid var(--border2);
+  border-radius:4px;
+  background:var(--card);
+  font-size:13px;
+  box-shadow:0 0 10px var(--green-glow2);
+  animation:pulse-border 2s ease-in-out infinite;
+}
+.streak-num{
+  font-family:var(--font-display);
+  font-size:16px;font-weight:700;
+  color:var(--green);
+  text-shadow:0 0 10px var(--green);
+}
+
+@keyframes pulse-border{
+  0%,100%{box-shadow:0 0 8px var(--green-glow2)}
+  50%{box-shadow:0 0 20px var(--green-glow),0 0 40px var(--green-glow2)}
+}
+
+.solved-today{font-size:12px;color:var(--text3);border-left:1px solid var(--border);padding-left:16px}
+
+/* ── MAIN BODY ── */
+#main{display:flex;flex:1}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:56px;
+  background:rgba(0,8,0,0.98);
+  border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 0;gap:8px;
+  position:sticky;top:57px;height:calc(100vh - 57px);
+  box-shadow:2px 0 20px var(--green-glow2);
+}
+
+.nav-icon{
+  width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:4px;
+  cursor:pointer;
+  transition:all 0.2s;
+  border:1px solid transparent;
+  font-size:18px;
+  position:relative;
+  color:var(--text3);
+}
+.nav-icon:hover,.nav-icon.active{
+  background:var(--card2);
+  border-color:var(--border2);
+  color:var(--green);
+  box-shadow:0 0 15px var(--green-glow);
+}
+.nav-icon .tooltip{
+  position:absolute;left:52px;
+  background:var(--card2);
+  border:1px solid var(--border2);
+  padding:4px 10px;
+  font-size:11px;
+  white-space:nowrap;
+  border-radius:3px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.2s;
+  color:var(--green);
+  box-shadow:0 0 10px var(--green-glow2);
+}
+.nav-icon:hover .tooltip{opacity:1}
+
+/* ── CONTENT ── */
+#content{flex:1;padding:24px;overflow-y:auto;max-height:calc(100vh - 57px)}
+
+/* ── PANELS ── */
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn 0.4s ease}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── SECTION HEADER ── */
+.section-header{
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:14px;font-weight:700;
+  letter-spacing:4px;
+  color:var(--green);
+  text-shadow:0 0 15px rgba(0,255,65,0.5);
+}
+.section-sub{font-size:12px;color:var(--text3);margin-top:4px;letter-spacing:2px}
+
+/* ── SEARCH PANEL ── */
+.search-wrap{
+  display:flex;gap:8px;margin-bottom:16px;
+  position:relative;
+}
+.search-wrap input{
+  flex:1;
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:10px 16px 10px 40px;
+  color:var(--green);
+  font-family:var(--font-mono);
+  font-size:14px;
+  outline:none;
+  transition:all 0.2s;
+  box-shadow:inset 0 0 20px var(--green-glow2);
+}
+.search-wrap input:focus{
+  border-color:var(--green);
+  box-shadow:0 0 20px var(--green-glow),inset 0 0 20px var(--green-glow2);
+}
+.search-wrap input::placeholder{color:var(--muted)}
+.search-icon{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--text3);font-size:16px;pointer-events:none;
+}
+
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chip{
+  padding:4px 12px;
+  border:1px solid var(--border);
+  border-radius:3px;
+  font-size:11px;font-family:var(--font-mono);
+  cursor:pointer;color:var(--text3);
+  transition:all 0.15s;background:transparent;letter-spacing:1px;
+}
+.chip:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 8px var(--green-glow2)}
+.chip.active{border-color:var(--green);color:var(--green);background:var(--card2);box-shadow:0 0 12px var(--green-glow)}
+.chip.easy.active{border-color:var(--easy);color:var(--easy)}
+.chip.medium.active{border-color:var(--medium);color:var(--medium)}
+.chip.hard.active{border-color:var(--hard);color:var(--hard)}
+
+.q-list{display:flex;flex-direction:column;gap:6px}
+
+.q-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:12px 16px;
+  display:flex;align-items:center;gap:12px;
+  transition:all 0.2s;
+  position:relative;overflow:hidden;
+}
+.q-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--green3);transition:all 0.2s;
+}
+.q-card:hover{
+  border-color:var(--border2);
+  box-shadow:0 0 20px var(--green-glow2);
+  transform:translateX(2px);
+}
+.q-card:hover::before{background:var(--green);box-shadow:0 0 8px var(--green)}
+
+.q-num{font-size:12px;color:var(--text3);min-width:40px;font-family:var(--font-mono)}
+.q-title{flex:1;font-size:13px;color:var(--text2)}
+.q-diff{font-size:11px;padding:2px 8px;border-radius:2px;font-weight:700;letter-spacing:1px}
+.q-diff.easy{color:var(--easy);border:1px solid var(--easy);text-shadow:0 0 8px var(--easy)}
+.q-diff.medium{color:var(--medium);border:1px solid var(--medium)}
+.q-diff.hard{color:var(--hard);border:1px solid var(--hard)}
+
+.topic-tag{
+  font-size:10px;padding:2px 7px;border-radius:2px;
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--text3);letter-spacing:1px;
+}
+
+.solve-btn{
+  padding:5px 14px;
+  border:1px solid var(--green3);
+  border-radius:3px;
+  background:transparent;
+  color:var(--green);
+  font-family:var(--font-mono);
+  font-size:11px;letter-spacing:1px;
+  cursor:pointer;transition:all 0.2s;
+  white-space:nowrap;
+}
+.solve-btn:hover{
+  background:var(--green-dim);
+  border-color:var(--green);
+  box-shadow:0 0 12px var(--green-glow);
+}
+
+/* ── MY QUESTIONS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:14px 16px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.stat-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--green3),transparent);
+}
+.stat-val{
+  font-family:var(--font-display);
+  font-size:28px;font-weight:700;
+  color:var(--green);
+  text-shadow:0 0 15px rgba(0,255,65,0.4);
+}
+.stat-label{font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:4px}
+
+.solved-grid{display:flex;flex-direction:column;gap:8px}
+.solved-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  position:relative;overflow:hidden;
+  transition:all 0.2s;
+}
+.solved-card:hover{border-color:var(--border2);box-shadow:0 0 15px var(--green-glow2)}
+.solved-check{
+  width:28px;height:28px;border-radius:3px;
+  border:1px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--green);font-size:16px;
+  box-shadow:0 0 8px var(--green-glow);
+  flex-shrink:0;
+}
+.solved-info{flex:1}
+.solved-title{font-size:13px;color:var(--text2);margin-bottom:4px}
+.solved-meta{display:flex;gap:10px;align-items:center}
+.solved-date{font-size:11px;color:var(--text3)}
+.solved-lang{font-size:10px;padding:1px 6px;border:1px solid var(--border2);color:var(--text3);border-radius:2px}
+.complexity-badge{
+  font-size:11px;color:var(--green);
+  background:var(--card2);border:1px solid var(--border2);
+  padding:2px 8px;border-radius:2px;
+  font-family:var(--font-mono);
+}
+
+/* ── HEATMAP ── */
+.heatmap-container{margin-top:8px}
+.heatmap-months{display:flex;gap:2px;margin-bottom:4px;padding-left:24px}
+.month-label{font-size:10px;color:var(--text3);letter-spacing:1px;width:52px;text-align:center}
+.heatmap-body{display:flex;gap:4px}
+.heatmap-days{display:flex;flex-direction:column;gap:2px;padding-top:2px}
+.day-label{font-size:10px;color:var(--text3);height:12px;line-height:12px;letter-spacing:1px}
+.heatmap-grid{display:flex;gap:2px;flex:1;overflow-x:auto;padding-bottom:8px}
+.heatmap-col{display:flex;flex-direction:column;gap:2px}
+.heatmap-cell{
+  width:12px;height:12px;border-radius:2px;
+  background:var(--card2);border:1px solid var(--border);
+  cursor:pointer;transition:all 0.1s;position:relative;
+}
+.heatmap-cell:hover{transform:scale(1.4);z-index:10;border-color:var(--green)}
+.heatmap-cell[data-level="1"]{background:#003b00;border-color:#005500}
+.heatmap-cell[data-level="2"]{background:#006400;border-color:#008000;box-shadow:0 0 4px rgba(0,100,0,0.5)}
+.heatmap-cell[data-level="3"]{background:#00a000;border-color:#00cc00;box-shadow:0 0 6px rgba(0,160,0,0.6)}
+.heatmap-cell[data-level="4"]{background:#00ff41;border-color:#00ff41;box-shadow:0 0 10px rgba(0,255,65,0.8),0 0 20px rgba(0,255,65,0.4)}
+
+.heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:12px;justify-content:flex-end}
+.legend-label{font-size:10px;color:var(--text3)}
+.legend-cells{display:flex;gap:3px}
+.legend-cell{width:12px;height:12px;border-radius:2px;border:1px solid var(--border)}
+
+/* ── CODE EDITOR ── */
+.editor-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;height:calc(100vh - 180px);border:1px solid var(--border2);border-radius:4px;overflow:hidden;box-shadow:0 0 30px var(--green-glow2)}
+
+.problem-pane{
+  background:var(--card);
+  border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.pane-header{
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  background:var(--card2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pane-title{font-size:11px;letter-spacing:3px;color:var(--text3)}
+.pane-body{flex:1;overflow-y:auto;padding:16px}
+
+.problem-title-big{
+  font-family:var(--font-display);
+  font-size:15px;font-weight:700;
+  color:var(--green);margin-bottom:8px;
+  text-shadow:0 0 10px rgba(0,255,65,0.3);
+}
+.problem-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.problem-section{font-size:11px;letter-spacing:2px;color:var(--text3);margin-bottom:8px;margin-top:16px}
+.example-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:10px 12px;
+  font-size:12px;line-height:1.6;
+  color:var(--text2);margin-bottom:8px;
+}
+.constraint{font-size:12px;color:var(--text3);margin-bottom:4px}
+.constraint span{color:var(--green2)}
+
+.editor-pane{
+  background:#0a0a0a;
+  display:flex;flex-direction:column;
+}
+.editor-topbar{
+  padding:8px 12px;
+  background:var(--card2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.lang-switcher{display:flex;gap:4px}
+.lang-btn{
+  padding:4px 12px;border-radius:3px;font-size:11px;
+  border:1px solid var(--border);
+  background:transparent;color:var(--text3);
+  font-family:var(--font-mono);cursor:pointer;transition:all 0.2s;letter-spacing:1px;
+}
+.lang-btn.active{
+  border-color:var(--green);color:var(--green);
+  background:var(--card);box-shadow:0 0 8px var(--green-glow2);
+}
+
+.code-area{
+  flex:1;
+  background:#050505;
+  padding:16px;
+  font-family:var(--font-mono);
+  font-size:13px;
+  color:var(--green2);
+  border:none;outline:none;
+  resize:none;
+  line-height:1.6;
+  caret-color:var(--green);
+}
+.code-area::selection{background:var(--green-dim)}
+
+.editor-bottom{
+  border-top:1px solid var(--border);
+  background:var(--card2);
+}
+.testcase-tabs{display:flex;border-bottom:1px solid var(--border)}
+.tc-tab{
+  padding:8px 16px;font-size:11px;letter-spacing:1px;
+  cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;
+  transition:all 0.15s;
+}
+.tc-tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tc-body{padding:12px}
+.tc-io{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tc-label{font-size:10px;color:var(--text3);letter-spacing:2px;margin-bottom:4px}
+.tc-val{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:8px 10px;
+  font-size:12px;color:var(--text2);font-family:var(--font-mono);
+}
+.btn-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border)}
+
+.run-btn{
+  padding:7px 20px;border-radius:3px;
+  border:1px solid var(--green3);
+  background:var(--card);
+  color:var(--green);font-family:var(--font-mono);
+  font-size:12px;letter-spacing:2px;cursor:pointer;
+  transition:all 0.2s;
+}
+.run-btn:hover{border-color:var(--green);box-shadow:0 0 15px var(--green-glow);background:var(--card2)}
+
+.submit-btn{
+  padding:7px 20px;border-radius:3px;
+  border:1px solid var(--green);
+  background:var(--green-dim);
+  color:var(--green);font-family:var(--font-mono);
+  font-size:12px;letter-spacing:2px;cursor:pointer;
+  transition:all 0.2s;
+  box-shadow:0 0 10px var(--green-glow2);
+}
+.submit-btn:hover{box-shadow:0 0 20px var(--green-glow),0 0 40px var(--green-glow2);background:#005520}
+
+.output-pane{
+  padding:10px 12px;
+  border-top:1px solid var(--border);
+  font-size:12px;min-height:50px;
+  color:var(--text2);font-family:var(--font-mono);
+}
+.verdict{display:inline-block;padding:2px 8px;border-radius:2px;font-size:11px;letter-spacing:2px;margin-bottom:6px}
+.verdict.accepted{color:var(--green);border:1px solid var(--green);box-shadow:0 0 8px var(--green-glow2)}
+.verdict.wrong{color:var(--hard);border:1px solid var(--hard)}
+
+/* ── HINTS PANEL ── */
+.hints-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;height:calc(100vh - 180px)}
+.hints-left{display:flex;flex-direction:column;gap:12px}
+.hint-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+}
+.hint-card-header{
+  padding:10px 14px;
+  background:var(--card2);
+  border-bottom:1px solid var(--border);
+  font-size:11px;letter-spacing:3px;color:var(--text3);
+}
+.hint-actions{padding:12px;display:flex;flex-direction:column;gap:6px}
+.hint-action-btn{
+  padding:8px 14px;border-radius:3px;
+  border:1px solid var(--border);
+  background:transparent;color:var(--text2);
+  font-family:var(--font-mono);font-size:12px;
+  cursor:pointer;text-align:left;transition:all 0.2s;
+  letter-spacing:1px;
+}
+.hint-action-btn:hover{border-color:var(--green);color:var(--green);background:var(--card2);box-shadow:0 0 10px var(--green-glow2)}
+
+.hints-right{
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 0 20px var(--green-glow2);
+}
+.chat-header{
+  padding:12px 16px;background:var(--card2);
+  border-bottom:1px solid var(--border2);
+  font-size:11px;letter-spacing:3px;color:var(--green);
+  display:flex;align-items:center;gap:8px;
+}
+.ai-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:blink 1s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.chat-messages{
+  flex:1;padding:16px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:12px;
+}
+.msg{max-width:90%;font-size:12px;line-height:1.6}
+.msg.ai{align-self:flex-start}
+.msg.user{align-self:flex-end;text-align:right}
+.msg-bubble{
+  padding:10px 14px;border-radius:4px;
+  font-family:var(--font-mono);
+}
+.msg.ai .msg-bubble{
+  background:var(--card2);border:1px solid var(--border2);
+  color:var(--text2);border-left:2px solid var(--green3);
+}
+.msg.user .msg-bubble{
+  background:var(--green-dim);border:1px solid var(--green3);
+  color:var(--green);
+}
+.msg-sender{font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:2px}
+.typing{display:flex;gap:4px;align-items:center;padding:4px 0}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--green3);animation:typing-bounce 1s ease-in-out infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes typing-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.chat-input-row{
+  padding:12px;border-top:1px solid var(--border2);
+  display:flex;gap:8px;
+}
+.chat-input{
+  flex:1;background:var(--surface);
+  border:1px solid var(--border2);border-radius:3px;
+  padding:8px 12px;color:var(--green);
+  font-family:var(--font-mono);font-size:12px;
+  outline:none;transition:all 0.2s;
+}
+.chat-input:focus{border-color:var(--green);box-shadow:0 0 12px var(--green-glow2)}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send{
+  padding:8px 16px;border:1px solid var(--green);
+  border-radius:3px;background:var(--card2);
+  color:var(--green);font-family:var(--font-mono);
+  font-size:12px;cursor:pointer;transition:all 0.2s;
+}
+.chat-send:hover{background:var(--green-dim);box-shadow:0 0 10px var(--green-glow)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,3,0,0.92);z-index:1000;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex;animation:fadeIn 0.3s ease}
+.modal{
+  background:var(--card);
+  border:1px solid var(--green);
+  border-radius:6px;
+  padding:28px;width:420px;
+  box-shadow:0 0 60px rgba(0,255,65,0.2),0 0 120px rgba(0,255,65,0.1);
+  animation:modalIn 0.3s ease;
+  position:relative;
+}
+@keyframes modalIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-title{
+  font-family:var(--font-display);font-size:14px;font-weight:700;
+  color:var(--green);letter-spacing:3px;margin-bottom:20px;
+  text-shadow:0 0 15px rgba(0,255,65,0.5);
+}
+.modal-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.modal-row:last-of-type{border-bottom:none}
+.modal-key{font-size:12px;color:var(--text3);letter-spacing:1px}
+.modal-val{font-size:13px;color:var(--green);font-family:var(--font-display)}
+.modal-val.accept{color:var(--green);text-shadow:0 0 10px rgba(0,255,65,0.5)}
+.modal-close{
+  position:absolute;top:14px;right:16px;
+  background:transparent;border:none;
+  color:var(--text3);font-size:18px;cursor:pointer;
+  transition:color 0.2s;
+}
+.modal-close:hover{color:var(--green)}
+.modal-actions{display:flex;gap:8px;margin-top:20px}
+.modal-btn{
+  flex:1;padding:9px;border-radius:3px;
+  font-family:var(--font-mono);font-size:12px;letter-spacing:2px;
+  cursor:pointer;transition:all 0.2s;
+}
+.modal-btn.primary{border:1px solid var(--green);background:var(--green-dim);color:var(--green)}
+.modal-btn.secondary{border:1px solid var(--border);background:transparent;color:var(--text3)}
+.modal-btn:hover{box-shadow:0 0 12px var(--green-glow2)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--green3);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--green2)}
+
+/* ── GLITCH ANIMATION ── */
+@keyframes glitch{
+  0%{text-shadow:0 0 10px var(--green)}
+  20%{text-shadow:2px 0 var(--green),−2px 0 rgba(0,255,65,0.3)}
+  40%{text-shadow:0 0 10px var(--green)}
+  60%{text-shadow:-2px 0 var(--green),2px 0 rgba(0,255,65,0.3)}
+  100%{text-shadow:0 0 10px var(--green)}
+}
+
+/* ── LOADING BAR ── */
+.loading-bar{
+  height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);
+  animation:loading 1.5s ease-in-out infinite;width:0;
+}
+@keyframes loading{0%{width:0;margin-left:0}50%{width:100%}100%{width:0;margin-left:100%}}
+</style>
+</head>
+<body>
+
+<canvas id="matrix-rain"></canvas>
+
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">
+      THE MATRIX<span>DSA TRACKER v2.0</span>
+    </div>
+    <div class="topbar-right">
+      <div class="streak-pill">
+        <span style="font-size:14px">⚡</span>
+        <span class="streak-num" id="streak-count">7</span>
+        <span style="font-size:11px;color:var(--text3);letter-spacing:1px">DAY STREAK</span>
+      </div>
+      <div class="solved-today">
+        <span style="color:var(--green2);font-family:'Orbitron',monospace;font-size:14px" id="today-count">3</span>
+        <span style="font-size:11px;letter-spacing:1px"> SOLVED TODAY</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="nav-icon active" data-panel="search" onclick="switchPanel(this)">
+        🔍<span class="tooltip">SEARCH</span>
+      </div>
+      <div class="nav-icon" data-panel="myq" onclick="switchPanel(this)">
+        📋<span class="tooltip">MY PROBLEMS</span>
+      </div>
+      <div class="nav-icon" data-panel="streak" onclick="switchPanel(this)">
+        🔥<span class="tooltip">STREAK</span>
+      </div>
+      <div class="nav-icon" data-panel="editor" onclick="switchPanel(this)">
+        💻<span class="tooltip">CODE EDITOR</span>
+      </div>
+      <div class="nav-icon" data-panel="hints" onclick="switchPanel(this)">
+        💡<span class="tooltip">AI ORACLE</span>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+
+      <!-- ══ SEARCH PANEL ══ -->
+      <div class="panel active" id="panel-search">
+        <div class="section-header">
+          <div class="section-title">// PROBLEM SEARCH</div>
+          <div class="section-sub">QUERY THE MATRIX DATABASE</div>
+        </div>
+
+        <div class="search-wrap">
+          <span class="search-icon">▶</span>
+          <input type="text" id="search-input" placeholder="SEARCH PROBLEMS... (e.g. 'two sum', 'binary tree')" oninput="filterProblems()"/>
+        </div>
+
+        <div class="filter-row">
+          <button class="chip active" onclick="toggleDiff(this,'all')">ALL</button>
+          <button class="chip easy" onclick="toggleDiff(this,'Easy')">EASY</button>
+          <button class="chip medium" onclick="toggleDiff(this,'Medium')">MEDIUM</button>
+          <button class="chip hard" onclick="toggleDiff(this,'Hard')">HARD</button>
+          <button class="chip" onclick="toggleTopic(this,'Array')">ARRAY</button>
+          <button class="chip" onclick="toggleTopic(this,'HashMap')">HASHMAP</button>
+          <button class="chip" onclick="toggleTopic(this,'Tree')">TREE</button>
+          <button class="chip" onclick="toggleTopic(this,'DP')">DP</button>
+          <button class="chip" onclick="toggleTopic(this,'Graph')">GRAPH</button>
+          <button class="chip" onclick="toggleTopic(this,'String')">STRING</button>
+          <button class="chip" onclick="toggleTopic(this,'BinarySearch')">BINARY SEARCH</button>
+        </div>
+
+        <div class="q-list" id="q-list"></div>
+      </div>
+
+      <!-- ══ MY QUESTIONS PANEL ══ -->
+      <div class="panel" id="panel-myq">
+        <div class="section-header">
+          <div class="section-title">// MY SOLVED PROBLEMS</div>
+          <div class="section-sub">YOUR PATH THROUGH THE MATRIX</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-val" id="total-solved">0</div>
+            <div class="stat-label">TOTAL SOLVED</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--easy);text-shadow:0 0 15px rgba(0,255,65,0.4)" id="easy-count">0</div>
+            <div class="stat-label">EASY</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--medium);text-shadow:0 0 15px rgba(255,225,53,0.4)" id="med-count">0</div>
+            <div class="stat-label">MEDIUM</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--hard);text-shadow:0 0 15px rgba(255,49,49,0.4)" id="hard-count">0</div>
+            <div class="stat-label">HARD</div>
+          </div>
+        </div>
+
+        <div class="solved-grid" id="solved-list"></div>
+      </div>
+
+      <!-- ══ STREAK PANEL ══ -->
+      <div class="panel" id="panel-streak">
+        <div class="section-header">
+          <div class="section-title">// ACTIVITY MATRIX</div>
+          <div class="section-sub">YOUR CONTRIBUTION TO THE SYSTEM</div>
+        </div>
+
+        <div class="stats-row" style="margin-bottom:28px">
+          <div class="stat-card">
+            <div class="stat-val" id="cur-streak">7</div>
+            <div class="stat-label">CURRENT STREAK</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">23</div>
+            <div class="stat-label">LONGEST STREAK</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="hm-total">0</div>
+            <div class="stat-label">TOTAL SOLVED</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val">2026</div>
+            <div class="stat-label">YEAR</div>
+          </div>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border2);border-radius:4px;padding:20px;box-shadow:0 0 20px var(--green-glow2)">
+          <div class="pane-title" style="margin-bottom:16px;font-size:11px;letter-spacing:3px;color:var(--text3)">// 52-WEEK CONTRIBUTION GRID</div>
+          <div class="heatmap-container">
+            <div class="heatmap-months" id="hm-months"></div>
+            <div class="heatmap-body">
+              <div class="heatmap-days">
+                <div class="day-label">MON</div>
+                <div class="day-label" style="opacity:0">T</div>
+                <div class="day-label">WED</div>
+                <div class="day-label" style="opacity:0">T</div>
+                <div class="day-label">FRI</div>
+                <div class="day-label" style="opacity:0">S</div>
+                <div class="day-label" style="opacity:0">S</div>
+              </div>
+              <div class="heatmap-grid" id="hm-grid"></div>
+            </div>
+          </div>
+          <div class="heatmap-legend">
+            <span class="legend-label">LESS</span>
+            <div class="legend-cells">
+              <div class="legend-cell" style="background:var(--card2)"></div>
+              <div class="legend-cell" style="background:#003b00;border-color:#005500"></div>
+              <div class="legend-cell" style="background:#006400;border-color:#008000"></div>
+              <div class="legend-cell" style="background:#00a000;border-color:#00cc00"></div>
+              <div class="legend-cell" style="background:#00ff41;border-color:#00ff41;box-shadow:0 0 6px rgba(0,255,65,0.6)"></div>
+            </div>
+            <span class="legend-label">MORE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CODE EDITOR PANEL ══ -->
+      <div class="panel" id="panel-editor">
+        <div class="section-header">
+          <div class="section-title">// CODE EDITOR</div>
+          <div class="section-sub">WRITE YOUR SOLUTION. ENTER THE MATRIX.</div>
+        </div>
+
+        <div class="editor-layout">
+          <!-- Problem -->
+          <div class="problem-pane">
+            <div class="pane-header">
+              <span class="pane-title">// PROBLEM</span>
+              <span class="q-diff easy" id="editor-diff">EASY</span>
+            </div>
+            <div class="pane-body">
+              <div class="problem-title-big" id="editor-title">1. TWO SUM</div>
+              <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap" id="editor-tags">
+                <span class="topic-tag">ARRAY</span>
+                <span class="topic-tag">HASHMAP</span>
+              </div>
+              <div class="problem-desc" id="editor-desc">
+                Given an array of integers <span style="color:var(--green)">nums</span> and an integer <span style="color:var(--green)">target</span>, return indices of the two numbers such that they add up to target.<br><br>
+                You may assume that each input would have exactly one solution, and you may not use the same element twice.
+              </div>
+              <div class="problem-section">// EXAMPLES</div>
+              <div class="example-box">
+                <span style="color:var(--text3)">Input:</span> nums = [2,7,11,15], target = 9<br>
+                <span style="color:var(--text3)">Output:</span> [0,1]<br>
+                <span style="color:var(--text3)">Explanation:</span> nums[0] + nums[1] == 9
+              </div>
+              <div class="problem-section">// CONSTRAINTS</div>
+              <div class="constraint">• <span>2 ≤ nums.length ≤ 10⁴</span></div>
+              <div class="constraint">• <span>-10⁹ ≤ nums[i] ≤ 10⁹</span></div>
+              <div class="constraint">• Only one valid answer exists.</div>
+            </div>
+          </div>
+
+          <!-- Editor -->
+          <div class="editor-pane">
+            <div class="editor-topbar">
+              <div class="lang-switcher">
+                <button class="lang-btn active" onclick="switchLang(this,'python')">PYTHON</button>
+                <button class="lang-btn" onclick="switchLang(this,'java')">JAVA</button>
+                <button class="lang-btn" onclick="switchLang(this,'cpp')">C++</button>
+              </div>
+              <span style="font-size:10px;color:var(--text3);letter-spacing:2px">judge0 api ready</span>
+            </div>
+            <textarea class="code-area" id="code-editor" spellcheck="false"></textarea>
+            <div class="editor-bottom">
+              <div class="testcase-tabs">
+                <div class="tc-tab active" onclick="switchTC(this,0)">CASE 1</div>
+                <div class="tc-tab" onclick="switchTC(this,1)">CASE 2</div>
+                <div class="tc-tab" onclick="switchTC(this,2)">CUSTOM</div>
+              </div>
+              <div class="tc-body">
+                <div class="tc-io">
+                  <div>
+                    <div class="tc-label">INPUT</div>
+                    <div class="tc-val" id="tc-input">nums = [2,7,11,15]<br>target = 9</div>
+                  </div>
+                  <div>
+                    <div class="tc-label">EXPECTED</div>
+                    <div class="tc-val" id="tc-expected">[0,1]</div>
+                  </div>
+                </div>
+              </div>
+              <div id="output-pane" style="display:none" class="output-pane">
+                <div class="verdict accepted" id="verdict-badge">ACCEPTED</div>
+                <div style="font-size:12px;color:var(--text2)" id="output-text">Output: [0, 1] ✓ Matches expected</div>
+              </div>
+              <div class="btn-row">
+                <button class="run-btn" onclick="runCode()">▶ RUN</button>
+                <button class="submit-btn" onclick="submitCode()">⚡ SUBMIT</button>
+                <span style="flex:1"></span>
+                <span style="font-size:11px;color:var(--text3);align-self:center;letter-spacing:1px" id="run-status"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ HINTS PANEL ══ -->
+      <div class="panel" id="panel-hints">
+        <div class="section-header">
+          <div class="section-title">// AI ORACLE</div>
+          <div class="section-sub">CONSULT THE MACHINE. GET SYNTAX. GET HINTS.</div>
+        </div>
+
+        <div class="hints-layout">
+          <div class="hints-left">
+            <div class="hint-card">
+              <div class="hint-card-header">// QUICK ACTIONS</div>
+              <div class="hint-actions">
+                <button class="hint-action-btn" onclick="sendHint('Give me a hint for the current problem without spoiling the solution')">💡 GIVE ME A HINT</button>
+                <button class="hint-action-btn" onclick="sendHint('Show me Python syntax: for loops, list comprehension, dictionary')">🐍 PYTHON SYNTAX GUIDE</button>
+                <button class="hint-action-btn" onclick="sendHint('Show me Java syntax: arrays, ArrayList, HashMap with examples')">☕ JAVA SYNTAX GUIDE</button>
+                <button class="hint-action-btn" onclick="sendHint('Show me C++ syntax: vectors, maps, pairs with examples')">⚙️ C++ SYNTAX GUIDE</button>
+                <button class="hint-action-btn" onclick="sendHint('Explain time and space complexity with Big O notation examples')">📊 BIG-O COMPLEXITY</button>
+                <button class="hint-action-btn" onclick="sendHint('Review my approach: I am trying to use a HashMap to store seen elements and check for complement. Is this optimal?')">🔍 REVIEW MY APPROACH</button>
+              </div>
+            </div>
+
+            <div class="hint-card">
+              <div class="hint-card-header">// CURRENT PROBLEM</div>
+              <div style="padding:14px;font-size:12px;color:var(--text2)">
+                <div style="color:var(--green);margin-bottom:6px;font-family:'Orbitron',monospace;font-size:13px">1. TWO SUM</div>
+                <div style="color:var(--text3);font-size:11px;margin-bottom:10px;letter-spacing:1px">DIFFICULTY: <span style="color:var(--easy)">EASY</span> · TOPIC: ARRAY, HASHMAP</div>
+                <div style="font-size:11px;color:var(--text3)">Ask the Oracle about this problem, syntax, or your approach. The machine knows all.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hints-right">
+            <div class="chat-header">
+              <div class="ai-dot"></div>
+              AI ORACLE — ONLINE
+            </div>
+            <div class="chat-messages" id="chat-messages">
+              <div class="msg ai">
+                <div class="msg-sender">// ORACLE</div>
+                <div class="msg-bubble">
+                  Greetings, human. I am the Oracle.<br><br>
+                  Ask me for hints, syntax help, or code review. I will guide you — but the choice to understand is always yours.<br><br>
+                  <span style="color:var(--text3)">What do you seek?</span>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chat-input" type="text" placeholder="QUERY THE ORACLE..." onkeydown="if(event.key==='Enter')sendChat()"/>
+              <button class="chat-send" onclick="sendChat()">SEND ▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- SUBMIT MODAL -->
+<div class="modal-overlay" id="submit-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">// SYSTEM REPORT</div>
+    <div class="modal-row">
+      <span class="modal-key">VERDICT</span>
+      <span class="modal-val accept">✓ ACCEPTED (3/3)</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">RUNTIME</span>
+      <span class="modal-val">48 ms <span style="font-size:11px;color:var(--text3)">(beats 89%)</span></span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">MEMORY</span>
+      <span class="modal-val">17.2 MB <span style="font-size:11px;color:var(--text3)">(beats 74%)</span></span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">TIME COMPLEXITY</span>
+      <span class="modal-val" style="text-shadow:0 0 10px rgba(0,255,65,0.4)">O(n)</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">SPACE COMPLEXITY</span>
+      <span class="modal-val">O(n)</span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">LANGUAGE</span>
+      <span class="modal-val" id="modal-lang">PYTHON</span>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn primary" onclick="saveSolved()">SAVE TO MATRIX</button>
+      <button class="modal-btn secondary" onclick="closeModal()">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── MATRIX RAIN ──
+const canvas=document.getElementById('matrix-rain');
+const ctx=canvas.getContext('2d');
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789アイウエオカキクケコサシスセソタチツテトナニヌネノ'.split('');
+const fontSize=14;
+let cols=Math.floor(window.innerWidth/fontSize);
+let drops=Array(cols).fill(1);
+function drawRain(){
+  ctx.fillStyle='rgba(0,3,0,0.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00ff41';
+  ctx.font=fontSize+'px Share Tech Mono';
+  drops.forEach((y,i)=>{
+    const c=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillStyle=Math.random()>0.95?'#ffffff':'#00ff41';
+    ctx.fillText(c,i*fontSize,y*fontSize);
+    if(y*fontSize>canvas.height&&Math.random()>0.975)drops[i]=0;
+    drops[i]++;
+  });
+}
+setInterval(drawRain,33);
+
+// ── DATA ──
+const PROBLEMS=[
+  {id:1,title:'Two Sum',diff:'Easy',topics:['Array','HashMap']},
+  {id:2,title:'Add Two Numbers',diff:'Medium',topics:['LinkedList']},
+  {id:3,title:'Longest Substring Without Repeating Characters',diff:'Medium',topics:['String','HashMap']},
+  {id:4,title:'Median of Two Sorted Arrays',diff:'Hard',topics:['BinarySearch','Array']},
+  {id:5,title:'Longest Palindromic Substring',diff:'Medium',topics:['String','DP']},
+  {id:11,title:'Container With Most Water',diff:'Medium',topics:['Array']},
+  {id:15,title:'3Sum',diff:'Medium',topics:['Array']},
+  {id:20,title:'Valid Parentheses',diff:'Easy',topics:['String','Stack']},
+  {id:21,title:'Merge Two Sorted Lists',diff:'Easy',topics:['LinkedList']},
+  {id:33,title:'Search in Rotated Sorted Array',diff:'Medium',topics:['BinarySearch','Array']},
+  {id:42,title:'Trapping Rain Water',diff:'Hard',topics:['Array','DP']},
+  {id:46,title:'Permutations',diff:'Medium',topics:['Backtracking']},
+  {id:48,title:'Rotate Image',diff:'Medium',topics:['Array']},
+  {id:53,title:'Maximum Subarray',diff:'Medium',topics:['Array','DP']},
+  {id:56,title:'Merge Intervals',diff:'Medium',topics:['Array']},
+  {id:70,title:'Climbing Stairs',diff:'Easy',topics:['DP']},
+  {id:84,title:'Largest Rectangle in Histogram',diff:'Hard',topics:['Stack','Array']},
+  {id:94,title:'Binary Tree Inorder Traversal',diff:'Easy',topics:['Tree']},
+  {id:98,title:'Validate Binary Search Tree',diff:'Medium',topics:['Tree']},
+  {id:102,title:'Binary Tree Level Order Traversal',diff:'Medium',topics:['Tree','Graph']},
+  {id:121,title:'Best Time to Buy and Sell Stock',diff:'Easy',topics:['Array','DP']},
+  {id:124,title:'Binary Tree Maximum Path Sum',diff:'Hard',topics:['Tree','DP']},
+  {id:128,title:'Longest Consecutive Sequence',diff:'Medium',topics:['Array','HashMap']},
+  {id:141,title:'Linked List Cycle',diff:'Easy',topics:['LinkedList']},
+  {id:152,title:'Maximum Product Subarray',diff:'Medium',topics:['Array','DP']},
+  {id:200,title:'Number of Islands',diff:'Medium',topics:['Graph','BFS']},
+  {id:206,title:'Reverse Linked List',diff:'Easy',topics:['LinkedList']},
+  {id:207,title:'Course Schedule',diff:'Medium',topics:['Graph']},
+  {id:226,title:'Invert Binary Tree',diff:'Easy',topics:['Tree']},
+  {id:230,title:'Kth Smallest Element in a BST',diff:'Medium',topics:['Tree']},
+  {id:238,title:'Product of Array Except Self',diff:'Medium',topics:['Array']},
+  {id:295,title:'Find Median from Data Stream',diff:'Hard',topics:['Heap']},
+  {id:300,title:'Longest Increasing Subsequence',diff:'Medium',topics:['DP','BinarySearch']},
+  {id:322,title:'Coin Change',diff:'Medium',topics:['DP']},
+  {id:347,title:'Top K Frequent Elements',diff:'Medium',topics:['Array','HashMap']},
+];
+
+let solvedProblems=JSON.parse(localStorage.getItem('solved')||'[]');
+let activeDiff='all';let activeTopic='';let currentLang='python';
+
+// ── CODE BOILERPLATES ──
+const boilerplates={
+  python:`class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        seen = {}
+        for i, num in enumerate(nums):
+            complement = target - num
+            if complement in seen:
+                return [seen[complement], i]
+            seen[num] = i
+        return []`,
+  java:`class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> seen = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (seen.containsKey(complement)) {
+                return new int[]{seen.get(complement), i};
+            }
+            seen.put(nums[i], i);
+        }
+        return new int[]{};
+    }
+}`,
+  cpp:`class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> seen;
+        for (int i = 0; i < nums.size(); i++) {
+            int complement = target - nums[i];
+            if (seen.count(complement)) {
+                return {seen[complement], i};
+            }
+            seen[nums[i]] = i;
+        }
+        return {};
+    }
+};`
+};
+
+// ── PANEL SWITCH ──
+function switchPanel(el){
+  document.querySelectorAll('.nav-icon').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+el.dataset.panel).classList.add('active');
+  if(el.dataset.panel==='myq')renderSolved();
+  if(el.dataset.panel==='streak')renderHeatmap();
+}
+
+// ── SEARCH / FILTER ──
+function toggleDiff(el,d){
+  document.querySelectorAll('.chip').forEach(c=>{if(['ALL','EASY','MEDIUM','HARD'].some(x=>c.textContent.trim()===x))c.classList.remove('active')});
+  el.classList.add('active');activeDiff=d;filterProblems();
+}
+function toggleTopic(el,t){
+  if(activeTopic===t){el.classList.remove('active');activeTopic=''}
+  else{document.querySelectorAll('.chip').forEach(c=>{if(!['ALL','EASY','MEDIUM','HARD'].some(x=>c.textContent.trim()===x))c.classList.remove('active')});el.classList.add('active');activeTopic=t;}
+  filterProblems();
+}
+function filterProblems(){
+  const q=document.getElementById('search-input').value.toLowerCase();
+  let filtered=PROBLEMS.filter(p=>{
+    const matchQ=p.title.toLowerCase().includes(q)||String(p.id).includes(q);
+    const matchD=activeDiff==='all'||p.diff===activeDiff;
+    const matchT=!activeTopic||p.topics.includes(activeTopic);
+    return matchQ&&matchD&&matchT;
+  });
+  renderList(filtered);
+}
+function renderList(problems){
+  const el=document.getElementById('q-list');
+  if(!problems.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;letter-spacing:2px">// NO PROBLEMS FOUND IN THE MATRIX</div>';return;}
+  el.innerHTML=problems.map(p=>{
+    const solved=solvedProblems.find(s=>s.id===p.id);
+    return `<div class="q-card">
+      <span class="q-num">#${p.id}</span>
+      <span class="q-title">${p.title}${solved?'<span style="color:var(--green3);margin-left:8px;font-size:11px">✓</span>':''}</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${p.topics.map(t=>`<span class="topic-tag">${t}</span>`).join('')}
+      </div>
+      <span class="q-diff ${p.diff.toLowerCase()}">${p.diff.toUpperCase()}</span>
+      <button class="solve-btn" onclick="openInEditor(${p.id})">SOLVE ▶</button>
+    </div>`;
+  }).join('');
+}
+
+// ── OPEN IN EDITOR ──
+function openInEditor(id){
+  const p=PROBLEMS.find(x=>x.id===id);if(!p)return;
+  document.getElementById('editor-title').textContent=`${p.id}. ${p.title.toUpperCase()}`;
+  document.getElementById('editor-diff').textContent=p.diff.toUpperCase();
+  document.getElementById('editor-diff').className='q-diff '+p.diff.toLowerCase();
+  document.getElementById('editor-tags').innerHTML=p.topics.map(t=>`<span class="topic-tag">${t}</span>`).join('');
+  document.getElementById('code-editor').value=boilerplates[currentLang];
+  document.querySelectorAll('.nav-icon').forEach(n=>n.classList.remove('active'));
+  document.querySelector('[data-panel="editor"]').classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-editor').classList.add('active');
+}
+
+// ── LANG SWITCH ──
+function switchLang(el,lang){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');currentLang=lang;
+  const ed=document.getElementById('code-editor');
+  ed.style.opacity='0';
+  setTimeout(()=>{ed.value=boilerplates[lang];ed.style.opacity='1';ed.style.transition='opacity 0.3s';},150);
+  document.getElementById('modal-lang').textContent=lang.toUpperCase();
+}
+
+// ── TEST CASES ──
+const testCases=[
+  {input:'nums = [2,7,11,15]\ntarget = 9',expected:'[0,1]'},
+  {input:'nums = [3,2,4]\ntarget = 6',expected:'[1,2]'},
+  {input:'Custom input:',expected:'Your output'},
+];
+function switchTC(el,idx){
+  document.querySelectorAll('.tc-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tc-input').innerHTML=testCases[idx].input.replace(/\n/g,'<br>');
+  document.getElementById('tc-expected').textContent=testCases[idx].expected;
+}
+
+// ── RUN ──
+function runCode(){
+  const btn=document.querySelector('.run-btn');
+  const status=document.getElementById('run-status');
+  btn.textContent='⏳ RUNNING...';btn.disabled=true;
+  status.textContent='EXECUTING IN THE MATRIX...';
+  const out=document.getElementById('output-pane');
+  out.style.display='none';
+  setTimeout(()=>{
+    out.style.display='block';
+    document.getElementById('verdict-badge').textContent='OUTPUT';
+    document.getElementById('verdict-badge').className='verdict accepted';
+    document.getElementById('output-text').textContent='Output: [0, 1] ✓ Matches expected | Runtime: 42ms';
+    btn.textContent='▶ RUN';btn.disabled=false;
+    status.textContent='DONE';setTimeout(()=>status.textContent='',2000);
+  },1200);
+}
+
+// ── SUBMIT ──
+function submitCode(){
+  const btn=document.querySelector('.submit-btn');
+  btn.textContent='⚡ JUDGING...';btn.disabled=true;
+  setTimeout(()=>{
+    btn.textContent='⚡ SUBMIT';btn.disabled=false;
+    document.getElementById('submit-modal').classList.add('open');
+  },1800);
+}
+function closeModal(){document.getElementById('submit-modal').classList.remove('open')}
+
+// ── SAVE SOLVED ──
+function saveSolved(){
+  const titleEl=document.getElementById('editor-title');
+  const match=titleEl.textContent.match(/^(\d+)\.\s(.+)$/);
+  if(!match)return;
+  const id=parseInt(match[1]);
+  const title=match[2];
+  const diff=document.getElementById('editor-diff').textContent;
+  const diffMap={'EASY':'Easy','MEDIUM':'Medium','HARD':'Hard'};
+  const existing=solvedProblems.find(s=>s.id===id);
+  if(!existing){
+    const today=new Date().toISOString().slice(0,10);
+    solvedProblems.push({id,title,diff:diffMap[diff]||'Easy',lang:currentLang.toUpperCase(),date:today,time:'O(n)',space:'O(n)'});
+    localStorage.setItem('solved',JSON.stringify(solvedProblems));
+    document.getElementById('streak-count').textContent=solvedProblems.length>0?'7':'0';
+    const tc=parseInt(document.getElementById('today-count').textContent);
+    document.getElementById('today-count').textContent=tc+1;
+  }
+  closeModal();
+  renderSolved();
+}
+
+// ── RENDER SOLVED ──
+function renderSolved(){
+  const list=document.getElementById('solved-list');
+  document.getElementById('total-solved').textContent=solvedProblems.length;
+  document.getElementById('easy-count').textContent=solvedProblems.filter(s=>s.diff==='Easy').length;
+  document.getElementById('med-count').textContent=solvedProblems.filter(s=>s.diff==='Medium').length;
+  document.getElementById('hard-count').textContent=solvedProblems.filter(s=>s.diff==='Hard').length;
+  document.getElementById('hm-total').textContent=solvedProblems.length;
+  if(!solvedProblems.length){
+    list.innerHTML='<div style="text-align:center;padding:60px;color:var(--text3);font-size:13px;letter-spacing:2px">// NO SOLVED PROBLEMS YET.<br><br>ENTER THE MATRIX.</div>';return;
+  }
+  list.innerHTML=solvedProblems.slice().reverse().map(s=>`
+    <div class="solved-card">
+      <div class="solved-check">✓</div>
+      <div class="solved-info">
+        <div class="solved-title">#${s.id} ${s.title}</div>
+        <div class="solved-meta">
+          <span class="q-diff ${s.diff.toLowerCase()}" style="font-size:10px;padding:1px 6px">${s.diff.toUpperCase()}</span>
+          <span class="solved-lang">${s.lang}</span>
+          <span class="solved-date">${s.date}</span>
+        </div>
+      </div>
+      <span class="complexity-badge">${s.time}</span>
+    </div>
+  `).join('');
+}
+
+// ── HEATMAP ──
+function renderHeatmap(){
+  const grid=document.getElementById('hm-grid');
+  grid.innerHTML='';
+  const now=new Date();
+  const data={};
+  solvedProblems.forEach(s=>{
+    data[s.date]=(data[s.date]||0)+1;
+  });
+  // random historical data for demo
+  for(let i=0;i<365;i++){
+    const d=new Date(now);d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    if(!data[key]&&Math.random()<0.35){
+      data[key]=Math.floor(Math.random()*5);
+    }
+  }
+  const weeks=52;
+  const startDate=new Date(now);
+  startDate.setDate(startDate.getDate()-weeks*7);
+  for(let w=0;w<weeks;w++){
+    const col=document.createElement('div');
+    col.className='heatmap-col';
+    for(let d=0;d<7;d++){
+      const date=new Date(startDate);
+      date.setDate(startDate.getDate()+w*7+d);
+      if(date>now){const empty=document.createElement('div');empty.style.width='12px';empty.style.height='12px';col.appendChild(empty);continue;}
+      const key=date.toISOString().slice(0,10);
+      const count=data[key]||0;
+      const level=count===0?0:count===1?1:count<=2?2:count<=3?3:4;
+      const cell=document.createElement('div');
+      cell.className='heatmap-cell';
+      if(level>0)cell.setAttribute('data-level',level);
+      cell.title=`${key} — ${count} solved`;
+      col.appendChild(cell);
+    }
+    grid.appendChild(col);
+  }
+}
+
+// ── AI ORACLE CHAT ──
+const responses={
+  hint:["Think about what data structure gives you O(1) lookup time. Consider storing elements you've already seen as you iterate through the array.","What if you stored the complement of each number as you iterate? When you encounter a number that's been stored as a complement, you've found your answer."],
+  python:["Python syntax guide:\n\nfor i, val in enumerate(arr):\n    ...\n\n# List comprehension\nresult = [x*2 for x in arr if x > 0]\n\n# Dictionary\nd = {}\nd[key] = value\nif key in d:\n    ...\n\n# Sort with key\narr.sort(key=lambda x: x[1])"],
+  java:["Java syntax guide:\n\n// ArrayList\nList<Integer> list = new ArrayList<>();\nlist.add(1); list.get(0);\n\n// HashMap\nMap<Integer,Integer> map = new HashMap<>();\nmap.put(key, val);\nmap.getOrDefault(key, 0);\n\n// For-each\nfor (int n : arr) { ... }\n\n// Sort\nArrays.sort(arr);"],
+  cpp:["C++ syntax guide:\n\n// Vector\nvector<int> v = {1,2,3};\nv.push_back(4);\n\n// Unordered map\nunordered_map<int,int> mp;\nmp[key] = val;\nmp.count(key);\n\n// Sort\nsort(v.begin(), v.end());\n\n// Pair\npair<int,int> p = {1, 2};"],
+  bigo:["Big-O Complexity Guide:\n\nO(1)   — constant   → HashMap lookup\nO(log n) — logarithmic → Binary Search\nO(n)   — linear     → Single loop\nO(n log n) — linearithmic → Sorting\nO(n²)  — quadratic  → Nested loops\nO(2ⁿ)  — exponential → Recursion (unbounded)\n\nAlways aim for O(n) or O(n log n)!"],
+  default:["That is a good question, human. Think about the problem structure first — what would a brute force O(n²) look like? Can you optimize using a HashSet or sorting?","The Matrix tells me: consider breaking the problem into sub-problems. Dynamic programming? Sliding window? Two pointers?","Interesting query. Trace through a small example by hand first. The pattern usually becomes visible when n=4 or n=5."]
+};
+
+function getAIResponse(text){
+  const t=text.toLowerCase();
+  if(t.includes('hint'))return responses.hint[Math.floor(Math.random()*responses.hint.length)];
+  if(t.includes('python'))return responses.python[0];
+  if(t.includes('java'))return responses.java[0];
+  if(t.includes('c++'))return responses.cpp[0];
+  if(t.includes('big-o')||t.includes('complexity'))return responses.bigo[0];
+  return responses.default[Math.floor(Math.random()*responses.default.length)];
+}
+
+function sendHint(text){
+  document.querySelectorAll('.nav-icon').forEach(n=>n.classList.remove('active'));
+  document.querySelector('[data-panel="hints"]').classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-hints').classList.add('active');
+  setTimeout(()=>addMessage(text,'user'),100);
+  setTimeout(()=>showTyping(),300);
+  setTimeout(()=>addMessage(getAIResponse(text),'ai'),2000);
+}
+
+function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  addMessage(text,'user');
+  showTyping();
+  setTimeout(()=>addMessage(getAIResponse(text),'ai'),1500);
+}
+
+function addMessage(text,role){
+  const msgs=document.getElementById('chat-messages');
+  const typing=msgs.querySelector('.typing-msg');
+  if(typing)typing.remove();
+  const div=document.createElement('div');
+  div.className=`msg ${role}`;
+  div.innerHTML=`<div class="msg-sender">${role==='ai'?'// ORACLE':'// YOU'}</div>
+    <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='msg ai typing-msg';
+  div.innerHTML=`<div class="msg-sender">// ORACLE</div>
+    <div class="msg-bubble"><div class="typing">
+      <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+    </div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+// ── INIT ──
+document.getElementById('code-editor').value=boilerplates.python;
+filterProblems();
+renderSolved();
+</script>
+</body>
+</html>
