@@ -9,11 +9,14 @@ import MatrixRain from './components/ui/MatrixRain';
 import AIHintsPanel from './components/ui/AIHintsPanel';
 import IntroSequence from './components/intro/IntroSequence';
 
+import ConstructApp from './pages/construct/ConstructApp';
+
 // Check if we've already seen the intro this session
 const hasSeenIntro = () => sessionStorage.getItem('matrix-intro-done') === 'true';
 
 export default function App() {
   const [introComplete, setIntroComplete] = useState(hasSeenIntro());
+  const [selectedWorld, setSelectedWorld] = useState(sessionStorage.getItem('matrix-world') || null); // 'red' or 'blue'
   const [activePanel, setActivePanel] = useState('search');
   const [activeLanguage, setLanguage] = useState('python');
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -27,16 +30,28 @@ export default function App() {
     }
   };
 
-  const handleIntroComplete = () => {
+  const handleIntroComplete = (world) => {
     sessionStorage.setItem('matrix-intro-done', 'true');
+    sessionStorage.setItem('matrix-world', world);
+    setSelectedWorld(world);
     setIntroComplete(true);
   };
 
   // Show the cinematic intro until the user makes their pill choice
-  if (!introComplete) {
+  if (!introComplete || !selectedWorld) {
     return <IntroSequence onIntroComplete={handleIntroComplete} />;
   }
 
+  // The Blue Pill path
+  if (selectedWorld === 'blue') {
+    return <ConstructApp onExit={() => {
+      sessionStorage.removeItem('matrix-world');
+      setSelectedWorld(null);
+      setIntroComplete(false); // Restart intro for demo purposes
+    }} />;
+  }
+
+  // The Red Pill path (Main DSA Component)
   return (
     <>
       <MatrixRain />

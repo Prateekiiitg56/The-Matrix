@@ -7,23 +7,23 @@ export default {
     theme: {
         extend: {
             colors: {
-                'void-black': '#000300',      // var(--black) replacing previous void-black
-                'surface': '#020f02',         // var(--surface)
-                'editor-dark': '#041404',     // var(--card) previously editor-dark
-                'raised-dark': '#061806',     // var(--card2) previously raised-dark
-                'subtle-line': '#0a3d0a',     // var(--border) previously subtle-line
-                'border-focus': '#0f5a0f',    // var(--border2)
-                'accent-primary': '#00ff41',  // var(--green) previously accent-primary
-                'accent-secondary': '#00cc33',// var(--green2) previously electric violet
-                'accent-dim': '#008f11',      // var(--green3)
-                'accent-dark': '#003b00',     // var(--green4)
-                'easy-diff': '#00ff41',       // var(--easy)
-                'med-diff': '#ffe135',        // var(--medium)
-                'hard-diff': '#ff3131',       // var(--hard)
-                'body-text': '#00ff41',       // Text is all matrix green
-                'muted-text': '#1a5c1a',      // var(--muted)
-                'text-alt': '#00cc33',        // var(--text2)
-                'success-verd': '#00ff41',
+                'void-black': 'var(--theme-void-black)',
+                'surface': 'var(--theme-surface)',
+                'editor-dark': 'var(--theme-editor-dark)',
+                'raised-dark': 'var(--theme-raised-dark)',
+                'subtle-line': 'var(--theme-subtle-line)',
+                'border-focus': 'var(--theme-border-focus)',
+                'accent-primary': 'var(--theme-accent-primary)',
+                'accent-secondary': 'var(--theme-accent-secondary)',
+                'accent-dim': 'var(--theme-accent-dim)',
+                'accent-dark': 'var(--theme-accent-dark)',
+                'easy-diff': '#00ff41',
+                'med-diff': '#ffe135',
+                'hard-diff': '#ff3131',
+                'body-text': 'var(--theme-accent-primary)',
+                'muted-text': 'var(--theme-muted-text)',
+                'text-alt': 'var(--theme-accent-secondary)',
+                'success-verd': 'var(--theme-accent-primary)',
                 'fail-verd': '#ff3131'
             },
             fontFamily: {

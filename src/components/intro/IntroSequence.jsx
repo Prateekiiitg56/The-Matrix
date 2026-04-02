@@ -31,7 +31,7 @@ export default function IntroSequence({ onIntroComplete }) {
         setTransition(pill);
         // Let transition animation play, then launch the app
         setTimeout(() => {
-            onIntroComplete();
+            onIntroComplete(pill);
         }, 1400);
     }, [onIntroComplete]);
 

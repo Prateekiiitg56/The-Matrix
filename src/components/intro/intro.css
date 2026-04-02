@@ -639,26 +639,85 @@
     }
 }
 
+/* BLUE PILL — Cinematic "Enter The Construct" transition */
 .blue-pill-transition {
     position: fixed;
     inset: 0;
     z-index: 99999;
-    background: #fff;
-    animation: bluePillFade 1.5s ease forwards;
     pointer-events: none;
+    overflow: hidden;
 }
 
-@keyframes bluePillFade {
+/* Layer 1: electric ripple shockwave from center */
+.blue-pill-transition::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 200vmax;
+    height: 200vmax;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00aaff 0%, #0033cc 30%, #000820 70%, transparent 100%);
+    animation: blueRippleExpand 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes blueRippleExpand {
     0% {
-        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
     }
 
-    40% {
+    55% {
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
     }
 
     100% {
+        transform: translate(-50%, -50%) scale(1);
         opacity: 0;
+    }
+}
+
+/* Layer 2: digital code columns streaming down */
+.blue-pill-transition::after {
+    content: '01 10 11 00 10 01 00 11 01 10 01 00';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    color: #00aaff;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 12px;
+    line-height: 2;
+    word-spacing: 20px;
+    padding: 20px;
+    opacity: 0;
+    animation: codeStreamIn 1.4s 0.3s ease-out forwards;
+    pointer-events: none;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: hidden;
+}
+
+@keyframes codeStreamIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    30% {
+        opacity: 0.6;
+    }
+
+    70% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(100%);
     }
 }
 
