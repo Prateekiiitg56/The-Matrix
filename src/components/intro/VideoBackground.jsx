@@ -46,7 +46,7 @@ function attachInteractionListener() {
     );
 }
 
-export default function VideoBackground({ src, poster, overlayGradient, loop = true, playbackRate = 0.5 }) {
+export default function VideoBackground({ src, poster, overlayGradient, loop = true, playbackRate = 1 }) {
     const videoRef = useRef(null);
 
     useEffect(() => {
