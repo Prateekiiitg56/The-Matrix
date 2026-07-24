@@ -202,9 +202,8 @@
     height: 100%;
     background: #000;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     overflow: hidden;
 }
 
@@ -234,7 +233,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
     cursor: pointer;
     background: none;
     border: none;
@@ -243,19 +242,8 @@
     pointer-events: auto;
     transform: translate(-50%, -50%);
     /* Clickable area covers the capsule in the video */
-    width: clamp(60px, 8vw, 100px);
-    height: clamp(100px, 14vw, 160px);
-}
-
-/* Capsule positions from the video's final frame */
-.pill-btn-left {
-    top: 50%;
-    left: 32.6%;
-}
-
-.pill-btn-right {
-    top: 56.2%;
-    left: 68.7%;
+    width: clamp(50px, 8vw, 100px);
+    height: clamp(80px, 14vw, 160px);
 }
 
 .pill-btn:hover {
@@ -264,26 +252,50 @@
 
 /* Hover Info Tooltip Container */
 .pill-hover-info {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     opacity: 0;
-    transform: translateY(10px);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
     /* Let hovering over text not interrupt pill hover */
-    width: 200px;
+    width: clamp(140px, 30vw, 200px);
+    max-width: min(240px, 90vw);
     text-align: center;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 10px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 8px 10px;
     border-radius: 8px;
     border: 1px solid #333;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.pill-hover-info.align-left {
+    left: 0;
+    right: auto;
+    transform: translateX(0) translateY(10px);
+}
+
+.pill-hover-info.align-right {
+    left: auto;
+    right: 0;
+    transform: translateX(0) translateY(10px);
 }
 
 .pill-btn:hover .pill-hover-info {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
+}
+
+.pill-btn:hover .pill-hover-info.align-left,
+.pill-btn:hover .pill-hover-info.align-right {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
 }
 
 .pill-label {
@@ -310,6 +322,29 @@
     color: #aaa;
     letter-spacing: 1px;
     line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .pill-btn {
+        width: 45px;
+        height: 70px;
+    }
+
+    .pill-hover-info {
+        width: 140px;
+        padding: 6px;
+        margin-bottom: 4px;
+    }
+
+    .pill-label {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+    }
+
+    .pill-desc {
+        font-size: 9.5px;
+        line-height: 1.2;
+    }
 }
 
 /* ===========================
