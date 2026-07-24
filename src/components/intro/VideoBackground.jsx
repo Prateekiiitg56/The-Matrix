@@ -46,7 +46,7 @@ function attachInteractionListener() {
     );
 }
 
-export default function VideoBackground({ src, poster, overlayGradient, loop = true, playbackRate = 1 }) {
+export default function VideoBackground({ src, poster, overlayGradient, loop = true, loopStart = null, playbackRate = 1 }) {
     const videoRef = useRef(null);
 
     useEffect(() => {
@@ -62,6 +62,18 @@ export default function VideoBackground({ src, poster, overlayGradient, loop = t
 
         video.addEventListener('play', applySpeed);
         video.addEventListener('loadedmetadata', applySpeed);
+
+        const handleTimeUpdate = () => {
+            if (!video || !video.duration || loopStart === null || loopStart === undefined) return;
+            if (video.currentTime >= video.duration - 0.05) {
+                video.currentTime = loopStart;
+                video.play().catch(() => {});
+            }
+        };
+
+        if (loopStart !== null && loopStart !== undefined) {
+            video.addEventListener('timeupdate', handleTimeUpdate);
+        }
 
         // Check user's preferred motion setting
         const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -111,13 +123,18 @@ export default function VideoBackground({ src, poster, overlayGradient, loop = t
             pendingVideos.delete(video);
             video.removeEventListener('play', applySpeed);
             video.removeEventListener('loadedmetadata', applySpeed);
+            if (loopStart !== null && loopStart !== undefined) {
+                video.removeEventListener('timeupdate', handleTimeUpdate);
+            }
             if (mediaQuery.removeEventListener) {
                 mediaQuery.removeEventListener('change', handleMotionPreference);
             } else {
                 mediaQuery.removeListener(handleMotionPreference);
             }
         };
-    }, [src, playbackRate]);
+    }, [src, playbackRate, loopStart]);
+
+    const isNativeLoop = loop && (loopStart === null || loopStart === undefined);
 
     return (
         <>
@@ -127,7 +144,7 @@ export default function VideoBackground({ src, poster, overlayGradient, loop = t
                 src={src}
                 poster={poster}
                 autoPlay
-                loop={loop}
+                loop={isNativeLoop}
                 playsInline
                 preload="auto"
             />
