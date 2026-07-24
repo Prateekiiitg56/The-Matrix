@@ -1,7 +1,7 @@
 import { Flame, BrainCircuit, Activity } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function TopBar({ activeLanguage, setLanguage }) {
+export default function TopBar({ activeLanguage, setLanguage, onExit }) {
     return (
         <div className="h-14 font-code border-b border-subtle-line bg-editor-dark flex items-center justify-between px-6 z-20 shrink-0">
             {/* LATECODE MATRIX BRANDING */}
@@ -45,6 +45,16 @@ export default function TopBar({ activeLanguage, setLanguage }) {
                         </button>
                     ))}
                 </div>
+
+                {/* Exit Button */}
+                {onExit && (
+                    <button
+                        onClick={onExit}
+                        className="border border-red-500/50 text-red-500/70 hover:border-red-500 hover:text-red-500 px-4 py-1.5 tracking-widest text-xs transition-all font-display ml-2"
+                    >
+                        EXIT
+                    </button>
+                )}
 
             </div>
         </div>

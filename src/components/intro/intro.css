@@ -12,6 +12,33 @@
     font-family: 'Share Tech Mono', monospace;
 }
 
+/* === REUSABLE VIDEO BACKGROUND === */
+.intro-video-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.intro-video-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* === prefers-reduced-motion: pause videos on poster === */
+@media (prefers-reduced-motion: reduce) {
+    .intro-video-bg {
+        /* The JS in VideoBackground already pauses the video,
+           but this ensures the poster is shown if JS is slow. */
+        animation: none !important;
+    }
+}
+
 /* ===========================
    SCENE 1: MACHINE WORLD
    =========================== */
@@ -19,130 +46,11 @@
     position: relative;
     width: 100%;
     height: 100%;
-    background: radial-gradient(ellipse at center bottom, #1a0000 0%, #000000 70%);
-    perspective: 800px;
+    background: #000;
     overflow: hidden;
 }
 
-.machine-sky {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(ellipse 200% 60% at 50% 110%, #3d0000 0%, transparent 60%),
-        radial-gradient(ellipse 100% 50% at 20% 120%, #200000 0%, transparent 50%),
-        linear-gradient(to top, #0a0000 0%, #000 60%);
-}
-
-.machine-towers {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 0;
-    transform-origin: bottom center;
-}
-
-.tower {
-    position: relative;
-    background: linear-gradient(to top, #111 0%, #0a0a0a 100%);
-    border-left: 1px solid #1a1a1a;
-    border-right: 1px solid #1a1a1a;
-    flex-shrink: 0;
-    animation: towerRise 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transform: translateY(100%);
-}
-
-@keyframes towerRise {
-    0% {
-        transform: translateY(100%);
-    }
-
-    100% {
-        transform: translateY(0);
-    }
-}
-
-.tower::before {
-    content: '';
-    position: absolute;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #ff2200;
-    box-shadow: 0 0 20px 8px #ff220066, 0 0 60px 20px #ff220033;
-    animation: eyePulse 2s ease-in-out infinite;
-}
-
-@keyframes eyePulse {
-
-    0%,
-    100% {
-        opacity: 1;
-        box-shadow: 0 0 20px 8px #ff220066, 0 0 60px 20px #ff220033;
-    }
-
-    50% {
-        opacity: 0.3;
-        box-shadow: 0 0 5px 2px #ff220033;
-    }
-}
-
-.steam-vent {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    animation: steamRise 3s ease-out infinite;
-    opacity: 0;
-}
-
-@keyframes steamRise {
-    0% {
-        opacity: 0;
-        height: 0;
-        transform: translateX(-50%);
-    }
-
-    20% {
-        opacity: 0.4;
-    }
-
-    100% {
-        opacity: 0;
-        height: 80px;
-        transform: translateX(calc(-50% + 20px));
-    }
-}
-
-.machine-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255, 0, 0, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 0, 0, 0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    animation: gridPulse 4s ease-in-out infinite;
-}
-
-@keyframes gridPulse {
-
-    0%,
-    100% {
-        opacity: 0.5;
-    }
-
-    50% {
-        opacity: 1;
-    }
-}
-
+/* Red text streams on sides */
 .machine-text-stream {
     position: absolute;
     top: 10%;
@@ -152,6 +60,7 @@
     letter-spacing: 4px;
     animation: textFall 6s linear infinite;
     white-space: nowrap;
+    z-index: 2;
 }
 
 @keyframes textFall {
@@ -174,23 +83,32 @@
     }
 }
 
+/* Center title area */
 .scene1-title {
     position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translateX(-50%);
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    animation: titleFadeIn 1.5s 1s ease-out forwards;
+    z-index: 5;
+    padding: 0 16px;
+    pointer-events: none;
+    animation: titleFadeIn 1s 0.3s ease-out forwards;
     opacity: 0;
 }
 
 .scene1-title h1 {
     font-family: 'Orbitron', monospace;
-    font-size: clamp(24px, 4vw, 56px);
+    font-size: clamp(18px, 4.5vw, 48px);
     color: #ff2200;
     text-shadow: 0 0 40px #ff220099, 0 0 80px #ff220044;
-    letter-spacing: 8px;
+    letter-spacing: clamp(2px, 0.5vw, 8px);
     margin: 0;
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow-wrap: normal;
 }
 
 .scene1-title p {
@@ -204,15 +122,16 @@
 @keyframes titleFadeIn {
     0% {
         opacity: 0;
-        transform: translateX(-50%) translateY(20px);
+        transform: translateY(20px);
     }
 
     100% {
         opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
     }
 }
 
+/* Skip button */
 .scene1-skip {
     position: absolute;
     bottom: 40px;
@@ -224,6 +143,9 @@
     border: 1px solid #ff220033;
     padding: 8px 16px;
     transition: all 0.3s;
+    z-index: 10;
+    background: transparent;
+    font-family: 'Share Tech Mono', monospace;
 }
 
 .scene1-skip:hover {
@@ -232,55 +154,47 @@
     box-shadow: 0 0 15px #ff220033;
 }
 
-/* ===========================
-   SCENE 2: MATRIX TUNNEL
-   =========================== */
-.tunnel-scene {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+/* ─── DecryptText character animation ─── */
+.decrypt-text {
+    display: inline-block;
 }
 
-.tunnel-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.tunnel-text {
-    position: relative;
-    z-index: 10;
+.decrypt-char {
+    display: inline-block;
+    min-width: 0.55em;
     text-align: center;
-    animation: tunnelTextPulse 0.5s ease-in-out infinite alternate;
+    transition: color 0.15s, text-shadow 0.15s;
 }
 
-.tunnel-text h2 {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(18px, 3vw, 42px);
-    color: #00ff41;
-    text-shadow: 0 0 30px #00ff41, 0 0 60px #00ff4177;
-    letter-spacing: 6px;
-    margin: 0;
+.decrypt-char.scrambling {
+    color: #ff220066;
+    text-shadow: 0 0 6px #ff220033;
+    animation: glyphFlicker 0.08s steps(1) infinite;
 }
 
-@keyframes tunnelTextPulse {
-    from {
-        text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4177;
-    }
-
-    to {
-        text-shadow: 0 0 40px #00ff41, 0 0 80px #00ff41aa, 0 0 120px #00ff4133;
-    }
+.decrypt-char.locked {
+    color: #ff2200;
+    text-shadow: 0 0 20px #ff220088, 0 0 40px #ff220044;
 }
+
+.decrypt-subline .decrypt-char.scrambling {
+    color: #8b000088;
+}
+
+.decrypt-subline .decrypt-char.locked {
+    color: #8b0000;
+    text-shadow: 0 0 10px #8b000066;
+}
+
+@keyframes glyphFlicker {
+    0%   { opacity: 0.6; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
 
 /* ===========================
-   SCENE 3: MORPHEUS CHOICE (CINEMATIC)
+   SCENE 2: MORPHEUS CHOICE (CINEMATIC)
    =========================== */
 .morpheus-scene {
     position: relative;
@@ -294,60 +208,7 @@
     overflow: hidden;
 }
 
-.morpheus-hands-bg {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    animation: handsDescend 3s ease-out forwards;
-    z-index: 1;
-}
-
-@keyframes handsDescend {
-    0% {
-        transform: scale(1.1);
-        filter: brightness(0);
-    }
-
-    100% {
-        transform: scale(1.0);
-        filter: brightness(1);
-    }
-}
-
-.morpheus-quote-cinematic {
-    position: absolute;
-    top: 50px;
-    z-index: 10;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(14px, 2vw, 22px);
-    color: #00ff41;
-    text-shadow: 0 0 20px #00ff41;
-    letter-spacing: 3px;
-    text-align: center;
-    max-width: 800px;
-    padding: 30px;
-    line-height: 1.8;
-    background: rgba(0, 0, 0, 0.7);
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-    border-radius: 10px;
-    animation: quoteReveal 1.5s 1.5s ease-out forwards;
-    opacity: 0;
-}
-
-@keyframes quoteReveal {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* Pill click-target container */
 .pill-container-overlay {
     position: absolute;
     inset: 0;
@@ -367,6 +228,7 @@
     }
 }
 
+/* Pill buttons — invisible hot-zones over the video capsules */
 .pill-btn {
     position: absolute;
     display: flex;
@@ -380,98 +242,24 @@
     transition: transform 0.3s;
     pointer-events: auto;
     transform: translate(-50%, -50%);
-    /* Center perfectly on mapped coordinates */
+    /* Clickable area covers the capsule in the video */
+    width: clamp(60px, 8vw, 100px);
+    height: clamp(100px, 14vw, 160px);
 }
 
-/* Roughly where the palms are in hand.png - adjust if needed */
+/* Capsule positions from the video's final frame */
 .pill-btn-left {
     top: 50%;
-    left: 28%;
+    left: 32.6%;
 }
 
 .pill-btn-right {
-    top: 50%;
-    left: 72%;
+    top: 56.2%;
+    left: 68.7%;
 }
 
 .pill-btn:hover {
-    transform: translate(-50%, -50%) scale(1.1);
-}
-
-.pill-capsule {
-    width: clamp(30px, 4vw, 45px);
-    height: clamp(80px, 10vw, 110px);
-    border-radius: 100px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-    /* Base 3D shadow for depth */
-    box-shadow:
-        inset 5px 0 10px rgba(0, 0, 0, 0.6),
-        inset -5px 0 15px rgba(255, 255, 255, 0.4),
-        0 20px 30px rgba(0, 0, 0, 0.8);
-    transform-style: preserve-3d;
-}
-
-/* Glassy Highlight on the left edge */
-.pill-capsule::before {
-    content: '';
-    position: absolute;
-    top: 2%;
-    bottom: 2%;
-    left: 10%;
-    width: 15%;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
-    border-radius: 100px;
-    z-index: 5;
-    filter: blur(1px);
-}
-
-/* Middle connection ring */
-.pill-capsule::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: rgba(0, 0, 0, 0.4);
-    box-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-    z-index: 10;
-}
-
-.pill-red {
-    background: linear-gradient(135deg, #ff4d4d 0%, #cc0011 40%, #5a0000 100%);
-    box-shadow:
-        inset 10px 0 15px rgba(255, 100, 100, 0.4),
-        inset -10px 0 20px rgba(0, 0, 0, 0.8),
-        0 0 30px #ff000066;
-}
-
-.pill-blue {
-    background: linear-gradient(135deg, #4d94ff 0%, #0022cc 40%, #000c40 100%);
-    box-shadow:
-        inset 10px 0 15px rgba(100, 150, 255, 0.4),
-        inset -10px 0 20px rgba(0, 0, 0, 0.8),
-        0 0 30px #0033ff66;
-}
-
-.pill-btn:hover .pill-red {
-    box-shadow:
-        inset 10px 0 15px rgba(255, 150, 150, 0.6),
-        inset -10px 0 20px rgba(0, 0, 0, 0.8),
-        0 0 50px #ff0000aa,
-        0 0 80px #ff000066;
-    transform: scale(1.05) translateZ(20px);
-}
-
-.pill-btn:hover .pill-blue {
-    box-shadow:
-        inset 10px 0 15px rgba(150, 200, 255, 0.6),
-        inset -10px 0 20px rgba(0, 0, 0, 0.8),
-        0 0 50px #0055ffaa,
-        0 0 80px #0033ff66;
-    transform: scale(1.05) translateZ(20px);
+    transform: translate(-50%, -50%) scale(1.05);
 }
 
 /* Hover Info Tooltip Container */
@@ -522,64 +310,6 @@
     color: #aaa;
     letter-spacing: 1px;
     line-height: 1.5;
-}
-
-/* Illusion Terminal Overlay */
-.illusion-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #1166ff;
-    font-family: 'Orbitron', monospace;
-    animation: fadeIn 0.5s ease forwards;
-}
-
-.illusion-box {
-    background: rgba(0, 10, 30, 0.8);
-    border: 1px solid #1166ff44;
-    padding: 50px;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 600px;
-    box-shadow: 0 0 50px rgba(17, 102, 255, 0.2);
-}
-
-.illusion-box h2 {
-    font-size: 28px;
-    letter-spacing: 6px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px #1166ff;
-}
-
-.illusion-box p {
-    font-family: 'Share Tech Mono', monospace;
-    color: #88aaff;
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 30px;
-    text-shadow: none;
-}
-
-.illusion-btn {
-    background: transparent;
-    border: 1px solid #1166ff;
-    color: #1166ff;
-    padding: 12px 24px;
-    font-family: 'Orbitron', monospace;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.illusion-btn:hover {
-    background: rgba(17, 102, 255, 0.2);
-    box-shadow: 0 0 20px rgba(17, 102, 255, 0.5);
 }
 
 /* ===========================

@@ -1,28 +1,70 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import VideoBackground from './VideoBackground';
 
+/* ── Matrix-glyph character pool ── */
+const GLYPHS =
+    'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン' +
+    '0123456789' +
+    '!@#$%^&*<>{}[]|/\\~';
+
+function pickRandomGlyph() {
+    return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+}
+
+/* ─────────────────────────────────────────────
+   DecryptText — "hacking" decode reveal effect
+   Each character scrambles through random glyphs
+   before locking to its final value, left-to-right.
+   ───────────────────────────────────────────── */
+function DecryptText({ text, startDelay = 0, charInterval = 60, scrambleDuration = 400, className = '' }) {
+    const chars = useMemo(() => text.split(''), [text]);
+    const [revealed, setRevealed] = useState(-1);          // index of last locked char
+    const [scrambles, setScrambles] = useState(() => chars.map(() => pickRandomGlyph()));
+
+    // Scramble ticker — fast random glyph cycling for unlocked chars
+    useEffect(() => {
+        const id = setInterval(() => {
+            setScrambles(prev =>
+                prev.map((_, i) => (i > revealed ? pickRandomGlyph() : prev[i])),
+            );
+        }, 50);
+        return () => clearInterval(id);
+    }, [revealed, chars.length]);
+
+    // Progressive lock-in, left to right
+    useEffect(() => {
+        const timers = chars.map((_, i) =>
+            setTimeout(() => setRevealed(i), startDelay + i * charInterval + scrambleDuration),
+        );
+        return () => timers.forEach(clearTimeout);
+    }, [chars, startDelay, charInterval, scrambleDuration]);
+
+    return (
+        <span className={`decrypt-text ${className}`} aria-label={text}>
+            {chars.map((ch, i) => {
+                const isSpace = ch === ' ';
+                const locked = i <= revealed;
+                return (
+                    <span
+                        key={i}
+                        className={`decrypt-char ${locked ? 'locked' : 'scrambling'}`}
+                    >
+                        {isSpace ? '\u00A0' : locked ? ch : scrambles[i]}
+                    </span>
+                );
+            })}
+        </span>
+    );
+}
+
+/* ─────────────────────────────────────────────
+   SceneMachineWorld — the "loading" intro scene
+   ───────────────────────────────────────────── */
 export default function SceneMachineWorld({ onComplete }) {
     useEffect(() => {
-        const timer = setTimeout(onComplete, 4500);
+        const timer = setTimeout(onComplete, 6500);
         return () => clearTimeout(timer);
     }, [onComplete]);
-
-    const towers = [
-        { width: 60, height: 320, delay: 0.0 },
-        { width: 40, height: 200, delay: 0.1 },
-        { width: 90, height: 420, delay: 0.0 },
-        { width: 50, height: 280, delay: 0.2 },
-        { width: 130, height: 500, delay: 0.0 },
-        { width: 45, height: 240, delay: 0.15 },
-        { width: 100, height: 380, delay: 0.05 },
-        { width: 55, height: 300, delay: 0.1 },
-        { width: 80, height: 350, delay: 0.2 },
-        { width: 40, height: 180, delay: 0.25 },
-        { width: 110, height: 460, delay: 0.0 },
-        { width: 50, height: 220, delay: 0.3 },
-        { width: 70, height: 310, delay: 0.1 },
-        { width: 35, height: 160, delay: 0.35 },
-        { width: 95, height: 390, delay: 0.05 },
-    ];
 
     const streamTexts = [
         '01001101010011000010101',
@@ -33,8 +75,11 @@ export default function SceneMachineWorld({ onComplete }) {
 
     return (
         <div className="machine-world">
-            <div className="machine-sky" />
-            <div className="machine-grid" />
+            <VideoBackground
+                src="/videos/machine-world-bg.mp4"
+                poster="/videos/machine-world-bg.jpg"
+                overlayGradient="radial-gradient(ellipse at center bottom, rgba(26,0,0,0.4) 0%, rgba(0,0,0,0.75) 80%)"
+            />
 
             {/* Red text streams on sides */}
             {streamTexts.map((txt, i) => (
@@ -51,27 +96,26 @@ export default function SceneMachineWorld({ onComplete }) {
                 </div>
             ))}
 
-            {/* Machine towers */}
-            <div className="machine-towers">
-                {towers.map((t, i) => (
-                    <div
-                        key={i}
-                        className="tower"
-                        style={{
-                            width: t.width,
-                            height: t.height,
-                            animationDelay: `${t.delay}s`,
-                        }}
-                    >
-                        {/* Steam vents */}
-                        <div className="steam-vent" style={{ animationDelay: `${1 + i * 0.3}s` }} />
-                    </div>
-                ))}
-            </div>
-
-            {/* Center text */}
+            {/* Decrypt-reveal titles over the video */}
             <div className="scene1-title">
-                <h1>THE MACHINE WORLD</h1>
+                <h1>
+                    <DecryptText
+                        text="ENTERING THE MATRIX"
+                        startDelay={500}
+                        charInterval={55}
+                        scrambleDuration={350}
+                        className="decrypt-headline"
+                    />
+                </h1>
+                <p>
+                    <DecryptText
+                        text="INITIALIZING MACHINE WORLD PROTOCOL..."
+                        startDelay={1600}
+                        charInterval={35}
+                        scrambleDuration={300}
+                        className="decrypt-subline"
+                    />
+                </p>
             </div>
 
             {/* Skip */}

@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
 import SceneMachineWorld from './SceneMachineWorld';
-import SceneMatrixTunnel from './SceneMatrixTunnel';
 import SceneMorpheus from './SceneMorpheus';
 import './intro.css';
 
 const SCENES = {
     MACHINE: 'machine',
-    TUNNEL: 'tunnel',
     MORPHEUS: 'morpheus',
     TRANSITIONING: 'transitioning',
 };
@@ -24,8 +22,7 @@ export default function IntroSequence({ onIntroComplete }) {
         }, 500);
     }, []);
 
-    const handleMachineComplete = useCallback(() => goToScene(SCENES.TUNNEL), [goToScene]);
-    const handleTunnelComplete = useCallback(() => goToScene(SCENES.MORPHEUS), [goToScene]);
+    const handleMachineComplete = useCallback(() => goToScene(SCENES.MORPHEUS), [goToScene]);
 
     const handlePillChoice = useCallback((pill) => {
         setTransition(pill);
@@ -41,9 +38,6 @@ export default function IntroSequence({ onIntroComplete }) {
             <div className={fadeClass} style={{ width: '100%', height: '100%' }}>
                 {scene === SCENES.MACHINE && (
                     <SceneMachineWorld onComplete={handleMachineComplete} />
-                )}
-                {scene === SCENES.TUNNEL && (
-                    <SceneMatrixTunnel onComplete={handleTunnelComplete} />
                 )}
                 {scene === SCENES.MORPHEUS && (
                     <SceneMorpheus onPillChoice={handlePillChoice} />

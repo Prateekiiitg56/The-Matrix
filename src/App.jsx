@@ -42,13 +42,15 @@ export default function App() {
     return <IntroSequence onIntroComplete={handleIntroComplete} />;
   }
 
+  const handleExit = () => {
+    sessionStorage.removeItem('matrix-world');
+    setSelectedWorld(null);
+    setIntroComplete(false);
+  };
+
   // The Blue Pill path
   if (selectedWorld === 'blue') {
-    return <ConstructApp onExit={() => {
-      sessionStorage.removeItem('matrix-world');
-      setSelectedWorld(null);
-      setIntroComplete(false); // Restart intro for demo purposes
-    }} />;
+    return <ConstructApp onExit={handleExit} />;
   }
 
   // The Red Pill path (Main DSA Component)
@@ -58,7 +60,7 @@ export default function App() {
 
       <div className="flex flex-col h-screen bg-transparent text-accent-primary overflow-hidden font-code relative z-10">
 
-        <TopBar activeLanguage={activeLanguage} setLanguage={setLanguage} />
+        <TopBar activeLanguage={activeLanguage} setLanguage={setLanguage} onExit={handleExit} />
 
         <div className="flex flex-1 overflow-hidden">
           <Sidebar activePanel={activePanel} setActivePanel={handleSetPanel} />
