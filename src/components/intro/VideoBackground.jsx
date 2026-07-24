@@ -46,23 +46,35 @@ function attachInteractionListener() {
     );
 }
 
-export default function VideoBackground({ src, poster, overlayGradient, loop = true }) {
+export default function VideoBackground({ src, poster, overlayGradient, loop = true, playbackRate = 0.5 }) {
     const videoRef = useRef(null);
 
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
 
+        // Apply playback speed
+        video.playbackRate = playbackRate;
+
+        const applySpeed = () => {
+            if (video) video.playbackRate = playbackRate;
+        };
+
+        video.addEventListener('play', applySpeed);
+        video.addEventListener('loadedmetadata', applySpeed);
+
         // Check user's preferred motion setting
         const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         const tryPlayUnmuted = () => {
             video.muted = false;
+            video.playbackRate = playbackRate;
             const playPromise = video.play();
             if (playPromise && typeof playPromise.then === 'function') {
                 playPromise.catch(() => {
                     // Unmuted autoplay blocked — fall back to muted
                     video.muted = true;
+                    video.playbackRate = playbackRate;
                     video.play().catch(() => {});
                     // Register for unmuting on first user interaction
                     pendingVideos.add(video);
@@ -97,13 +109,15 @@ export default function VideoBackground({ src, poster, overlayGradient, loop = t
 
         return () => {
             pendingVideos.delete(video);
+            video.removeEventListener('play', applySpeed);
+            video.removeEventListener('loadedmetadata', applySpeed);
             if (mediaQuery.removeEventListener) {
                 mediaQuery.removeEventListener('change', handleMotionPreference);
             } else {
                 mediaQuery.removeListener(handleMotionPreference);
             }
         };
-    }, [src]);
+    }, [src, playbackRate]);
 
     return (
         <>
