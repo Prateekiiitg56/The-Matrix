@@ -163,11 +163,11 @@ export default function SceneMorpheus({ onPillChoice }) {
         <div className="morpheus-scene" ref={containerRef}>
             <div className="capsule-video-wrap">
                 <VideoBackground
-                    src="/videos/capsule-choice-bg.mp4"
+                    src="/videos/A_hyperrealistic_cinematic_K.mp4"
                     poster="/videos/capsule-choice-bg.jpg"
                     overlayGradient="linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.55) 100%)"
-                    loop={false}
-                    loopStart={7.5}
+                    loop={true}
+                    muted={false}
                 />
                 <div
                     ref={blueAnchorRef}

@@ -46,108 +46,183 @@ function attachInteractionListener() {
     );
 }
 
-export default function VideoBackground({ src, poster, overlayGradient, loop = true, loopStart = null, playbackRate = 1 }) {
-    const videoRef = useRef(null);
+export default function VideoBackground({
+    src,
+    poster,
+    overlayGradient,
+    loop = true,
+    playbackRate = 1,
+    muted = false,
+    seamlessLoop = true,
+    crossfadeDuration = 0.6,
+}) {
+    const video1Ref = useRef(null);
+    const video2Ref = useRef(null);
+    const activeRef = useRef(1);
+    const transitioningRef = useRef(false);
 
     useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
+        const v1 = video1Ref.current;
+        const v2 = video2Ref.current;
+        if (!v1) return;
 
-        // Apply playback speed
-        video.playbackRate = playbackRate;
+        v1.playbackRate = playbackRate;
+        if (v2) v2.playbackRate = playbackRate;
 
-        const applySpeed = () => {
-            if (video) video.playbackRate = playbackRate;
-        };
+        v1.muted = muted;
+        if (v2) v2.muted = muted;
 
-        video.addEventListener('play', applySpeed);
-        video.addEventListener('loadedmetadata', applySpeed);
+        v1.volume = 1;
+        if (v2) v2.volume = 1;
 
-        const handleTimeUpdate = () => {
-            if (!video || !video.duration || loopStart === null || loopStart === undefined) return;
-            if (video.currentTime >= video.duration - 0.05) {
-                video.currentTime = loopStart;
-                video.play().catch(() => {});
-            }
-        };
+        if (!loop || !seamlessLoop) {
+            v1.style.opacity = '1';
+            if (v2) v2.style.opacity = '0';
 
-        if (loopStart !== null && loopStart !== undefined) {
-            video.addEventListener('timeupdate', handleTimeUpdate);
+            const tryPlaySingle = () => {
+                if (muted) {
+                    v1.muted = true;
+                    v1.play().catch(() => {});
+                } else {
+                    v1.muted = false;
+                    v1.play().catch(() => {
+                        v1.muted = true;
+                        v1.play().catch(() => {});
+                        pendingVideos.add(v1);
+                        attachInteractionListener();
+                    });
+                }
+            };
+
+            tryPlaySingle();
+            return () => {
+                pendingVideos.delete(v1);
+                v1.pause();
+            };
         }
 
-        // Check user's preferred motion setting
-        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let animId = null;
 
-        const tryPlayUnmuted = () => {
-            video.muted = false;
-            video.playbackRate = playbackRate;
-            const playPromise = video.play();
-            if (playPromise && typeof playPromise.then === 'function') {
-                playPromise.catch(() => {
-                    // Unmuted autoplay blocked — fall back to muted
-                    video.muted = true;
-                    video.playbackRate = playbackRate;
-                    video.play().catch(() => {});
-                    // Register for unmuting on first user interaction
-                    pendingVideos.add(video);
+        v1.style.opacity = '1';
+        v1.style.transition = 'none';
+        if (v2) {
+            v2.style.opacity = '0';
+            v2.style.transition = 'none';
+        }
+
+        activeRef.current = 1;
+        transitioningRef.current = false;
+
+        const checkLoop = () => {
+            const currentVideo = activeRef.current === 1 ? v1 : v2;
+            const nextVideo = activeRef.current === 1 ? v2 : v1;
+
+            if (currentVideo && currentVideo.duration && !isNaN(currentVideo.duration)) {
+                const timeLeft = currentVideo.duration - currentVideo.currentTime;
+
+                if (timeLeft <= crossfadeDuration && !transitioningRef.current && nextVideo) {
+                    transitioningRef.current = true;
+
+                    nextVideo.currentTime = 0;
+                    nextVideo.muted = muted;
+                    nextVideo.volume = 0;
+                    nextVideo.playbackRate = playbackRate;
+
+                    const playPromise = nextVideo.play();
+                    if (playPromise && typeof playPromise.then === 'function') {
+                        playPromise.catch(() => {});
+                    }
+
+                    const startTime = performance.now();
+                    const fadeMs = crossfadeDuration * 1000;
+
+                    const fadeStep = (now) => {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(1, Math.max(0, elapsed / fadeMs));
+
+                        const currentOpacity = 1 - progress;
+                        const nextOpacity = progress;
+
+                        if (activeRef.current === 1) {
+                            v1.style.opacity = currentOpacity.toString();
+                            v2.style.opacity = nextOpacity.toString();
+                        } else {
+                            v2.style.opacity = currentOpacity.toString();
+                            v1.style.opacity = nextOpacity.toString();
+                        }
+
+                        if (!muted) {
+                            currentVideo.volume = currentOpacity;
+                            nextVideo.volume = nextOpacity;
+                        }
+
+                        if (progress < 1) {
+                            requestAnimationFrame(fadeStep);
+                        } else {
+                            currentVideo.pause();
+                            currentVideo.currentTime = 0;
+                            currentVideo.volume = 1;
+                            activeRef.current = activeRef.current === 1 ? 2 : 1;
+                            transitioningRef.current = false;
+                        }
+                    };
+
+                    requestAnimationFrame(fadeStep);
+                }
+            }
+
+            animId = requestAnimationFrame(checkLoop);
+        };
+
+        const tryPlayDual = () => {
+            if (muted) {
+                v1.muted = true;
+                v1.play().catch(() => {});
+            } else {
+                v1.muted = false;
+                v1.play().catch(() => {
+                    v1.muted = true;
+                    v1.play().catch(() => {});
+                    pendingVideos.add(v1);
                     attachInteractionListener();
                 });
             }
         };
 
-        const handleMotionPreference = (e) => {
-            if (e.matches) {
-                video.pause();
-                video.currentTime = 0;
-            } else {
-                tryPlayUnmuted();
-            }
-        };
-
-        // Initial check
-        if (mediaQuery.matches) {
-            video.pause();
-            video.currentTime = 0;
-        } else {
-            tryPlayUnmuted();
-        }
-
-        // Listener for dynamic OS preference changes
-        if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener('change', handleMotionPreference);
-        } else {
-            mediaQuery.addListener(handleMotionPreference);
-        }
+        tryPlayDual();
+        animId = requestAnimationFrame(checkLoop);
 
         return () => {
-            pendingVideos.delete(video);
-            video.removeEventListener('play', applySpeed);
-            video.removeEventListener('loadedmetadata', applySpeed);
-            if (loopStart !== null && loopStart !== undefined) {
-                video.removeEventListener('timeupdate', handleTimeUpdate);
-            }
-            if (mediaQuery.removeEventListener) {
-                mediaQuery.removeEventListener('change', handleMotionPreference);
-            } else {
-                mediaQuery.removeListener(handleMotionPreference);
-            }
+            if (animId) cancelAnimationFrame(animId);
+            pendingVideos.delete(v1);
+            if (v2) pendingVideos.delete(v2);
+            if (v1) v1.pause();
+            if (v2) v2.pause();
         };
-    }, [src, playbackRate, loopStart]);
-
-    const isNativeLoop = loop && (loopStart === null || loopStart === undefined);
+    }, [src, playbackRate, muted, loop, seamlessLoop, crossfadeDuration]);
 
     return (
         <>
             <video
-                ref={videoRef}
+                ref={video1Ref}
                 className="intro-video-bg"
                 src={src}
                 poster={poster}
-                autoPlay
-                loop={isNativeLoop}
                 playsInline
                 preload="auto"
+                style={{ opacity: 1, willChange: 'opacity' }}
             />
+            {seamlessLoop && loop && (
+                <video
+                    ref={video2Ref}
+                    className="intro-video-bg"
+                    src={src}
+                    poster={poster}
+                    playsInline
+                    preload="auto"
+                    style={{ opacity: 0, willChange: 'opacity' }}
+                />
+            )}
             {overlayGradient && (
                 <div
                     className="intro-video-overlay"
