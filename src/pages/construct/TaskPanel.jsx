@@ -56,7 +56,7 @@ export default function TaskPanel({ lesson, onProceed }) {
             <div className="flex flex-1 h-[60%] border-b border-subtle-line">
 
                 {/* Zone 1: Instruction Card */}
-                <div className="w-1/3 h-full p-6 bg-surface overflow-y-auto border-r border-subtle-line relative">
+                <div className="w-1/3 h-full p-6 overflow-y-auto border-r border-[rgba(34,102,255,0.15)] relative glass-panel glass-panel--blue" style={{ borderRadius: 0 }}>
                     <h3 className="font-display text-accent-secondary mb-4 tracking-widest text-lg">MISSION OBJECTIVE</h3>
                     <p className="text-white text-lg leading-relaxed mb-6 font-ui">
                         {lesson.task.instruction}
@@ -108,7 +108,7 @@ export default function TaskPanel({ lesson, onProceed }) {
                         <button
                             onClick={handleRunAndCheck}
                             disabled={isRunning}
-                            className="flex-1 bg-accent-primary text-black font-display font-bold py-2 hover:bg-white transition-all text-center tracking-widest"
+                            className="flex-1 glass-btn glass-btn--blue py-2 font-display font-bold text-center tracking-widest"
                         >
                             {isRunning ? 'COMPILING...' : 'RUN & CHECK ANSWER'}
                         </button>
@@ -140,7 +140,7 @@ export default function TaskPanel({ lesson, onProceed }) {
                         <div className="mt-auto pt-6 text-center animate-pulseGlow mb-2">
                             <button
                                 onClick={onProceed}
-                                className="w-full py-4 border border-accent-primary text-accent-primary font-bold tracking-widest hover:bg-accent-primary hover:text-black transition-all shadow-[0_0_15px_var(--theme-accent-primary)]"
+                                className="w-full py-4 glass-btn glass-btn--blue font-bold tracking-widest text-base"
                             >
                                 TESTS PASSED // PROCEED ▶
                             </button>

@@ -79,8 +79,8 @@ export default function ConstructApp({ onExit }) {
         <div className="flex flex-col h-screen w-full bg-void-black text-body-text font-code relative overflow-hidden">
 
             {/* === TOP HEADER === */}
-            <div className="relative z-20 border-b border-subtle-line bg-surface/80 backdrop-blur-md px-6 py-3 flex items-center justify-between gap-4"
-                style={{ boxShadow: '0 0 30px rgba(0,170,255,0.08)' }}>
+            <div className="relative z-20 glass-panel glass-panel--blue px-6 py-3 flex items-center justify-between gap-4"
+                style={{ borderRadius: 0 }}>
 
                 {/* Left: Logo + Current Lesson Breadcrumb */}
                 <div className="flex items-center gap-4 min-w-0">
@@ -125,7 +125,7 @@ export default function ConstructApp({ onExit }) {
                     </div>
                     <button
                         onClick={onExit}
-                        className="border border-fail-verd/50 text-fail-verd/70 hover:border-fail-verd hover:text-fail-verd px-4 py-1.5 tracking-widest text-xs transition-all font-display"
+                        className="glass-btn glass-btn--red px-4 py-1.5 tracking-widest text-xs font-display"
                     >
                         EXIT
                     </button>
@@ -185,7 +185,7 @@ export default function ConstructApp({ onExit }) {
 
             {/* === Bottom Nav (when inside a lesson) === */}
             {view !== 'module-map' && (
-                <div className="relative z-20 border-t border-subtle-line bg-surface/80 backdrop-blur-md px-6 py-2 flex items-center justify-between">
+                <div className="relative z-20 glass-panel glass-panel--blue px-6 py-2 flex items-center justify-between" style={{ borderRadius: 0 }}>
                     <button
                         onClick={() => {
                             if (view === 'quiz') setView('task');

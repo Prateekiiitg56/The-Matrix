@@ -23,7 +23,7 @@ export default function TheoryPanel({ lesson, onProceed }) {
         <div className="flex w-full h-full text-body-text">
 
             {/* Left side: Theory Markdown */}
-            <div className="w-1/2 h-full overflow-y-auto p-8 border-r border-subtle-line pb-24 relative">
+            <div className="w-1/2 h-full overflow-y-auto p-8 border-r border-[rgba(34,102,255,0.15)] pb-24 relative glass-panel glass-panel--blue" style={{ borderRadius: 0 }}>
                 <h2 className="text-2xl font-display font-bold text-white mb-6 uppercase tracking-widest">{lesson.title}</h2>
                 <div className="prose prose-invert prose-p:text-muted-text prose-headings:text-accent-primary max-w-none">
                     <ReactMarkdown>{lesson.theory}</ReactMarkdown>
@@ -33,7 +33,7 @@ export default function TheoryPanel({ lesson, onProceed }) {
                 <div className="absolute bottom-8 right-8">
                     <button
                         onClick={onProceed}
-                        className="flex items-center gap-2 bg-accent-primary text-black px-6 py-3 font-display font-bold hover:bg-white transition-all shadow-[0_0_15px_var(--theme-accent-primary)] hover:shadow-[0_0_25px_var(--theme-accent-primary)]"
+                        className="glass-btn glass-btn--blue flex items-center gap-2 px-6 py-3 font-display font-bold"
                     >
                         UNDERSTOOD <span className="text-xl">▶</span>
                     </button>
@@ -47,7 +47,7 @@ export default function TheoryPanel({ lesson, onProceed }) {
                     <button
                         onClick={handleRunExample}
                         disabled={isRunning}
-                        className="border border-accent-secondary text-accent-secondary hover:bg-accent-secondary/10 px-4 py-1 text-sm tracking-widest transition-all"
+                        className="glass-btn glass-btn--blue px-4 py-1 text-sm tracking-widest"
                     >
                         {isRunning ? 'EXECUTING...' : 'RUN EXAMPLE ▶'}
                     </button>

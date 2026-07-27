@@ -27,17 +27,17 @@ export default function QuizPanel({ lesson, onComplete }) {
                 <div className="flex flex-col gap-4">
                     {quiz.options.map((opt, idx) => {
 
-                        let btnClass = "border border-subtle-line bg-surface hover:border-accent-primary hover:bg-accent-primary/10 text-white p-4 font-ui text-lg transition-all rounded shadow-md text-left";
+                        let btnClass = "glass-card glass-card--blue p-4 font-ui text-lg text-left cursor-pointer text-white";
 
                         if (showResult) {
                             if (idx === quiz.answer) {
                                 // Correct answer always glows green
-                                btnClass = "border border-success-verd bg-success-verd/20 text-success-verd p-4 font-ui text-lg rounded shadow-[0_0_20px_rgba(0,255,65,0.3)] text-left";
+                                btnClass = "glass-card p-4 font-ui text-lg text-left border-[rgba(0,255,65,0.4)] bg-[rgba(0,255,65,0.08)] text-[#00ff41] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_20px_rgba(0,255,65,0.3),0_4px_20px_rgba(0,0,0,0.3)]";
                             } else if (idx === selectedOption) {
                                 // Selected wrong answer glows red
-                                btnClass = "border border-fail-verd bg-fail-verd/20 text-fail-verd p-4 font-ui text-lg rounded shadow-[0_0_20px_rgba(255,49,49,0.3)] text-left shake-animation";
+                                btnClass = "glass-card p-4 font-ui text-lg text-left border-[rgba(255,49,49,0.4)] bg-[rgba(255,49,49,0.08)] text-fail-verd shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_20px_rgba(255,49,49,0.3),0_4px_20px_rgba(0,0,0,0.3)] shake-animation";
                             } else {
-                                btnClass = "border border-subtle-line bg-surface/50 text-muted-text p-4 font-ui text-lg rounded text-left opacity-50";
+                                btnClass = "glass-card p-4 font-ui text-lg text-left opacity-40 text-muted-text";
                             }
                         }
 
@@ -73,7 +73,7 @@ export default function QuizPanel({ lesson, onComplete }) {
 
                         <button
                             onClick={onComplete}
-                            className="bg-accent-primary text-black font-display font-bold py-4 px-12 tracking-widest hover:bg-white hover:shadow-[0_0_20px_var(--theme-accent-primary)] transition-all"
+                            className="glass-btn glass-btn--blue py-4 px-12 font-display font-bold tracking-widest text-base"
                         >
                             {isCorrect ? 'DOWNLOAD NEW SKILLS (COMPLETE LESSON) ▶' : 'CONTINUE ANYWAY ▶'}
                         </button>

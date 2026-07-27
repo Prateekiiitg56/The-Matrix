@@ -230,14 +230,14 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
                 isDragging && "select-none cursor-col-resize"
             )}
         >
-            <div className="flex w-full h-full border border-border-focus rounded shadow-[0_0_30px_rgba(0,255,65,0.05)] overflow-hidden">
+            <div className="flex w-full h-full glass-panel overflow-hidden">
 
                 {/* Left Panel */}
                 <div
-                    className="h-full border-r border-border-focus bg-editor-dark flex flex-col overflow-y-auto overflow-x-hidden scrollbar-hide py-4 px-4 shrink-0 relative"
+                    className="h-full border-r border-[rgba(0,255,65,0.15)] flex flex-col overflow-y-auto overflow-x-hidden scrollbar-hide py-4 px-4 shrink-0 relative"
                     style={{ width: `${leftWidth}%`, minWidth: '300px' }}
                 >
-                    <div className="text-[11px] tracking-[3px] text-muted-text bg-raised-dark px-4 py-2 mb-4 border-b border-subtle-line -mx-4 -mt-4 uppercase flex justify-between items-center">
+                    <div className="text-[11px] tracking-[3px] text-muted-text glass-inner px-4 py-2 mb-4 -mx-4 -mt-4 uppercase flex justify-between items-center" style={{ borderRadius: 0 }}>
                         <span>// PROBLEM DEFINITION</span>
                         <div className="flex items-center gap-1">
                             <button
@@ -313,7 +313,7 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
 
                 {/* Draggable Divider */}
                 <div
-                    className="w-1.5 items-center justify-center cursor-col-resize bg-editor-dark hover:bg-border-focus transition-colors z-10 shrink-0 group relative flex flex-col gap-1"
+                    className="w-1.5 items-center justify-center cursor-col-resize bg-transparent hover:bg-[rgba(0,255,65,0.1)] transition-colors z-10 shrink-0 group relative flex flex-col gap-1"
                     onMouseDown={() => setIsDragging(true)}
                 >
                     <div className="w-[1px] h-3 bg-subtle-line group-hover:bg-accent-primary"></div>
@@ -324,7 +324,7 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
                 {/* Right Panel: Editor & IO */}
                 <div className="flex-1 flex flex-col h-full bg-[#0a0a0a] min-w-[300px]">
                     {/* Editor Top Bar */}
-                    <div className="px-3 py-2 bg-raised-dark border-b border-subtle-line flex items-center justify-between">
+                    <div className="px-3 py-2 glass-inner border-b border-[rgba(0,255,65,0.1)] flex items-center justify-between" style={{ borderRadius: 0 }}>
                         <div className="text-[10px] tracking-[2px] text-muted-text uppercase flex items-center gap-2">
                             <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", isCompiling ? "bg-med-diff" : "bg-accent-primary shadow-glow-sm")} />
                             {isCompiling ? 'SYSTEM COMPILING...' : 'LOCAL HOST ENGINE READY'}
@@ -358,7 +358,7 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
                     </div>
 
                     {/* Action Bar & Terminal IO */}
-                    <div className="bg-raised-dark border-t border-subtle-line flex flex-col h-48 shrink-0">
+                    <div className="glass-inner border-t border-[rgba(0,255,65,0.1)] flex flex-col h-48 shrink-0" style={{ borderRadius: 0 }}>
                         <div className="flex border-b border-subtle-line">
                             <button
                                 onClick={() => setActiveTab('testcases')}
@@ -421,12 +421,12 @@ export default function CodeEditor({ activeLanguage, activeProblemId, setActiveP
                             )}
                         </div>
 
-                        <div className="flex items-center justify-end px-3 py-2.5 gap-2 border-t border-subtle-line bg-raised-dark">
-                            <button onClick={executeCode} disabled={isCompiling} className="px-[20px] py-[7px] border border-accent-dim rounded-[3px] bg-editor-dark text-accent-primary font-code text-[12px] tracking-[2px] cursor-pointer transition-all hover:border-accent-primary hover:shadow-[0_0_15px_rgba(0,255,65,0.15)] hover:bg-raised-dark disabled:opacity-50 flex items-center gap-2">
+                        <div className="flex items-center justify-end px-3 py-2.5 gap-2 border-t border-[rgba(0,255,65,0.1)] glass-inner" style={{ borderRadius: 0 }}>
+                            <button onClick={executeCode} disabled={isCompiling} className="glass-btn px-[20px] py-[7px] text-[12px] tracking-[2px] flex items-center gap-2">
                                 {isCompiling ? <Loader2 size={12} className="animate-spin text-med-diff" /> : <Play size={12} className="text-accent-primary" />}
                                 RUN
                             </button>
-                            <button disabled={isCompiling} className="px-[20px] py-[7px] border border-accent-primary rounded-[3px] bg-accent-dim text-accent-primary font-code text-[12px] tracking-[2px] cursor-pointer transition-all shadow-[0_0_10px_rgba(0,255,65,0.05)] hover:shadow-[0_0_20px_rgba(0,255,65,0.15),0_0_40px_rgba(0,255,65,0.05)] hover:bg-[#005520] disabled:opacity-50 flex items-center gap-2">
+                            <button disabled={isCompiling} className="glass-btn px-[20px] py-[7px] text-[12px] tracking-[2px] flex items-center gap-2 border-accent-primary bg-[rgba(0,255,65,0.1)] shadow-[0_0_10px_rgba(0,255,65,0.1)]">
                                 <Zap size={12} className="text-void-black drop-shadow-md" />
                                 SUBMIT
                             </button>

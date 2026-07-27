@@ -18,12 +18,12 @@ export default function AIHintsPanel({ isOpen, onClose }) {
     ];
 
     return (
-        <div className="absolute right-0 top-0 h-full w-[420px] bg-editor-dark border-l border-border-focus z-50 flex flex-col shadow-[0_0_20px_rgba(0,255,65,0.05)] transition-transform transform translate-x-0 font-code text-accent-primary">
+        <div className="absolute right-0 top-0 h-full w-[420px] glass-panel z-50 flex flex-col transition-transform transform translate-x-0 font-code text-accent-primary" style={{ borderRadius: 0, borderTop: 'none', borderBottom: 'none', borderRight: 'none' }}>
 
             {/* Header */}
-            <div className="h-16 border-b border-border-focus flex items-center justify-between px-6 bg-raised-dark shrink-0">
+            <div className="h-16 border-b border-[rgba(0,255,65,0.15)] flex items-center justify-between px-6 glass-inner shrink-0" style={{ borderRadius: 0 }}>
                 <div className="flex items-center gap-3">
-                    <div className="bg-accent-secondary/20 p-2 rounded-sm border border-accent-secondary/30 relative overflow-hidden group">
+                    <div className="bg-accent-secondary/20 p-2 rounded-lg border border-accent-secondary/30 relative overflow-hidden group">
                         <div className="absolute inset-0 bg-accent-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <Sparkles size={16} className="text-accent-secondary" />
                     </div>
@@ -34,7 +34,7 @@ export default function AIHintsPanel({ isOpen, onClose }) {
                         </h2>
                     </div>
                 </div>
-                <button onClick={onClose} className="text-muted-text hover:text-accent-primary transition-colors bg-editor-dark p-2 border border-subtle-line hover:border-accent-primary rounded-sm cursor-pointer">
+                <button onClick={onClose} className="glass-btn p-2 cursor-pointer" style={{ borderRadius: '8px' }}>
                     <X size={14} />
                 </button>
             </div>
@@ -44,11 +44,11 @@ export default function AIHintsPanel({ isOpen, onClose }) {
                 {messages.map((m, i) => (
                     <div key={i} className={`flex flex-col ${m.role === 'ai' ? 'items-start' : 'items-end'}`}>
                         <span className="text-[10px] text-muted-text tracking-[2px] mb-1">{m.role === 'ai' ? 'SYSTEM' : 'USER'}</span>
-                        <div className={cn("max-w-[90%] rounded-[4px] px-[14px] py-[10px] text-[12px] leading-[1.6] font-code whitespace-pre-wrap",
+                        <div className={cn("max-w-[90%] rounded-xl px-[14px] py-[10px] text-[12px] leading-[1.6] font-code whitespace-pre-wrap",
                             m.role === 'ai'
-                                ? 'bg-raised-dark border border-border-focus text-text-alt border-l-[2px] border-l-accent-dim'
-                                : 'bg-accent-dim border border-accent-dim text-accent-primary'
-                        )}>
+                                ? 'glass-inner border-l-[2px] border-l-accent-dim'
+                                : 'bg-accent-dim/30 border border-accent-dim/50 text-accent-primary'
+                        )} style={{ color: 'var(--glass-text)' }}>
                             {m.content}
                         </div>
                     </div>
@@ -56,14 +56,15 @@ export default function AIHintsPanel({ isOpen, onClose }) {
             </div>
 
             {/* Quick Actions */}
-            <div className="p-4 flex flex-col gap-3 border-t border-border-focus bg-surface shadow-[inset_0_20px_20px_-20px_rgba(0,0,0,0.5)]">
+            <div className="p-4 flex flex-col gap-3 border-t border-[rgba(0,255,65,0.15)]">
                 <div className="grid grid-cols-2 gap-2 mb-1">
                     {quickActions.map((action, i) => {
                         const Icon = action.icon;
                         return (
                             <button
                                 key={i}
-                                className="flex items-center gap-2 text-[10px] bg-transparent hover:bg-raised-dark border border-subtle-line text-text-alt hover:text-accent-primary px-3 py-2.5 rounded-sm transition-all text-left tracking-[1px] cursor-pointer hover:border-accent-primary hover:shadow-[0_0_10px_rgba(0,255,65,0.05)]"
+                                className="glass-btn flex items-center gap-2 text-[10px] px-3 py-2.5 text-left tracking-[1px] cursor-pointer"
+                                style={{ borderRadius: '10px' }}
                                 onClick={() => setInput(action.label)}
                             >
                                 <Icon size={10} className="text-accent-primary shrink-0" />
@@ -76,12 +77,12 @@ export default function AIHintsPanel({ isOpen, onClose }) {
                 {/* Input */}
                 <div className="relative">
                     <textarea
-                        className="w-full bg-editor-dark border border-border-focus rounded-sm pl-4 pr-12 py-3 text-[12px] text-accent-primary placeholder-muted-text focus:outline-none focus:border-accent-primary resize-none h-14 font-code transition-all focus:shadow-[0_0_12px_rgba(0,255,65,0.05)]"
+                        className="w-full glass-card rounded-xl pl-4 pr-12 py-3 text-[12px] text-accent-primary placeholder-muted-text focus:outline-none focus:border-accent-primary resize-none h-14 font-code transition-all focus:shadow-[0_0_12px_rgba(0,255,65,0.1)]"
                         placeholder="ENTER QUERY..."
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                     />
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 text-accent-primary hover:text-void-black bg-raised-dark hover:bg-accent-dim p-2 rounded-sm border border-accent-primary hover:border-transparent transition-all cursor-pointer">
+                    <button className="absolute right-2 top-1/2 -translate-y-1/2 glass-btn p-2 cursor-pointer" style={{ borderRadius: '8px' }}>
                         <Send size={15} />
                     </button>
                 </div>

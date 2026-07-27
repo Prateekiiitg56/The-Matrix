@@ -13,33 +13,33 @@ export default function Streak() {
             <div className="w-full max-w-5xl flex flex-col pt-4">
 
                 {/* Section Header */}
-                <div className="mb-6 pb-3 border-b border-subtle-line">
+                <div className="mb-6 pb-3 border-b border-[rgba(0,255,65,0.15)]">
                     <div className="font-display text-[14px] font-bold tracking-[4px] text-accent-primary text-glow-alt">
             // ACTIVITY MATRIX
                     </div>
-                    <div className="text-[12px] text-muted-text mt-1 tracking-[2px] font-code">
+                    <div className="text-[12px] mt-1 tracking-[2px] font-code" style={{ color: 'var(--glass-text)' }}>
                         YOUR CONTRIBUTION TO THE SYSTEM
                     </div>
                 </div>
 
                 {/* Stats Row */}
                 <div className="grid grid-cols-4 gap-3 mb-8">
-                    <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden group">
+                    <div className="glass-card p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
                         <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">0</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">CURRENT STREAK</div>
                     </div>
-                    <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden">
+                    <div className="glass-card p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
                         <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">0</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">LONGEST STREAK</div>
                     </div>
-                    <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden">
+                    <div className="glass-card p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
                         <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">0</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">TOTAL SOLVED</div>
                     </div>
-                    <div className="bg-editor-dark border border-subtle-line rounded p-3.5 text-center relative overflow-hidden">
+                    <div className="glass-card p-3.5 text-center relative overflow-hidden">
                         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-dim to-transparent" />
                         <div className="font-display text-[28px] font-bold text-accent-primary text-glow-alt opacity-50">2026</div>
                         <div className="text-[10px] text-muted-text tracking-[2px] mt-1 font-code">YEAR</div>
@@ -47,7 +47,7 @@ export default function Streak() {
                 </div>
 
                 {/* Heatmap Section */}
-                <div className="bg-editor-dark border border-border-focus rounded p-5 w-full shadow-[0_0_20px_rgba(0,255,65,0.05)]">
+                <div className="glass-panel p-5 w-full">
                     <div className="mb-4 text-[11px] tracking-[3px] text-muted-text font-code">
              // 52-WEEK CONTRIBUTION GRID
                     </div>

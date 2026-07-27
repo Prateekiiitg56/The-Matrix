@@ -200,7 +200,7 @@ export default function SceneMorpheus({ onPillChoice }) {
                     }}
                     onClick={() => onPillChoice('blue')}
                 >
-                    <div className={getTooltipClass(positions.blue.leftPct)}>
+                    <div className={`${getTooltipClass(positions.blue.leftPct)} glass-panel glass-panel--blue`}>
                         <span className="pill-label blue">BLUE PILL</span>
                         <span className="pill-desc">Enter the Python Construct</span>
                     </div>
@@ -215,7 +215,7 @@ export default function SceneMorpheus({ onPillChoice }) {
                     }}
                     onClick={() => onPillChoice('red')}
                 >
-                    <div className={getTooltipClass(positions.red.leftPct)}>
+                    <div className={`${getTooltipClass(positions.red.leftPct)} glass-panel glass-panel--red`}>
                         <span className="pill-label red">RED PILL</span>
                         <span className="pill-desc">See how deep the rabbit hole goes</span>
                     </div>

@@ -19,10 +19,10 @@ export default function ModuleMap({ curriculum, progress, onSelectLesson }) {
                                 {module.lessons.map((lesson, lIdx) => {
                                     const isCompleted = progress?.completedLessons?.includes(lesson.id) || false;
 
-                                    let baseClasses = "group cursor-pointer p-4 border rounded-md transition-all duration-300 flex justify-between items-center";
+                                    let baseClasses = "group cursor-pointer p-4 rounded-[var(--glass-radius)] transition-all duration-300 flex justify-between items-center";
                                     let stateClasses = isCompleted
-                                        ? "border-accent-dim bg-accent-dark/20 opacity-60"
-                                        : "border-subtle-line bg-surface hover:border-accent-primary hover:bg-accent-primary/5 hover:shadow-[0_0_15px_rgba(0,170,255,0.15)]";
+                                        ? "glass-card glass-card--blue opacity-60"
+                                        : "glass-card glass-card--blue hover:shadow-[0_0_20px_rgba(34,102,255,0.15)]";
 
                                     return (
                                         <div

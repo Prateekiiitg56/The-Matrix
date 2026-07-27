@@ -302,12 +302,9 @@
     width: clamp(140px, 30vw, 200px);
     max-width: min(240px, 90vw);
     text-align: center;
-    background: rgba(0, 0, 0, 0.85);
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid #333;
+    /* Glass classes handle bg/border/shadow */
+    padding: 10px 12px;
     margin-bottom: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
 }
 
 .pill-hover-info.align-left {
