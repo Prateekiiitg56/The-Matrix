@@ -6,27 +6,27 @@ import './intro.css';
 const SCENES = {
     MACHINE: 'machine',
     MORPHEUS: 'morpheus',
-    TRANSITIONING: 'transitioning',
 };
 
 export default function IntroSequence({ onIntroComplete }) {
     const [scene, setScene] = useState(SCENES.MACHINE);
+    const [isTransitioningScene, setIsTransitioningScene] = useState(false);
     const [transition, setTransition] = useState(null); // 'red' | 'blue' | null
-    const [fadeClass, setFadeClass] = useState('scene-fade-enter');
 
     const goToScene = useCallback((next) => {
-        setFadeClass('scene-fade-exit');
+        if (isTransitioningScene) return;
+        setIsTransitioningScene(true);
+
         setTimeout(() => {
             setScene(next);
-            setFadeClass('scene-fade-enter');
-        }, 500);
-    }, []);
+            setIsTransitioningScene(false);
+        }, 850);
+    }, [isTransitioningScene]);
 
     const handleMachineComplete = useCallback(() => goToScene(SCENES.MORPHEUS), [goToScene]);
 
     const handlePillChoice = useCallback((pill) => {
         setTransition(pill);
-        // Let transition animation play, then launch the app
         setTimeout(() => {
             onIntroComplete(pill);
         }, 1400);
@@ -34,17 +34,31 @@ export default function IntroSequence({ onIntroComplete }) {
 
     return (
         <div className="intro-overlay">
-            {/* Scene content */}
-            <div className={fadeClass} style={{ width: '100%', height: '100%' }}>
-                {scene === SCENES.MACHINE && (
-                    <SceneMachineWorld onComplete={handleMachineComplete} />
+            <div className="scene-container">
+                {/* Scene 1: Machine World */}
+                {(scene === SCENES.MACHINE || isTransitioningScene) && (
+                    <div className={`scene-layer ${isTransitioningScene ? 'scene-layer--exit' : 'scene-layer--active'}`}>
+                        <SceneMachineWorld onComplete={handleMachineComplete} />
+                    </div>
                 )}
-                {scene === SCENES.MORPHEUS && (
-                    <SceneMorpheus onPillChoice={handlePillChoice} />
+
+                {/* Scene 2: Morpheus Capsule Choice */}
+                {(scene === SCENES.MORPHEUS || isTransitioningScene) && (
+                    <div className={`scene-layer ${isTransitioningScene ? 'scene-layer--enter-morpheus' : 'scene-layer--active'}`}>
+                        <SceneMorpheus onPillChoice={handlePillChoice} />
+                    </div>
                 )}
             </div>
 
-            {/* Pill transition overlays */}
+            {/* Matrix Scanline & Glitch Flash Transition Overlay */}
+            {isTransitioningScene && (
+                <div className="scene-glitch-overlay">
+                    <div className="glitch-line-stream" />
+                    <div className="glitch-flash-pulse" />
+                </div>
+            )}
+
+            {/* Pill choice final transition overlays */}
             {transition === 'red' && (
                 <>
                     <div className="red-pill-transition" />
