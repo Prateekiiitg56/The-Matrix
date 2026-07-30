@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchProgress, updateProgress, LEVELS } from '../../lib/progressStorage';
+import { fetchProgress, updateProgress, getLocalProgress, getDefaultProgress, LEVELS } from '../../lib/progressStorage';
 import { curriculum } from '../../data/curriculum';
 import ModuleMap from './ModuleMap';
 import TheoryPanel from './TheoryPanel';
@@ -18,7 +18,7 @@ function getLevelInfo(xp) {
 }
 
 export default function ConstructApp({ onExit }) {
-    const [progress, setProgress] = useState(null);
+    const [progress, setProgress] = useState(() => getLocalProgress('guest_user'));
     const [view, setView] = useState('module-map');
     const [activeLessonId, setActiveLessonId] = useState(null);
     const [xpPopup, setXpPopup] = useState(null);
@@ -33,8 +33,21 @@ export default function ConstructApp({ onExit }) {
 
     useEffect(() => {
         document.body.classList.add('theme-blue');
-        fetchProgress('guest_user').then(setProgress);
-        return () => document.body.classList.remove('theme-blue');
+        let isMounted = true;
+        fetchProgress('guest_user').then((data) => {
+            if (isMounted && data) {
+                setProgress(data);
+            }
+        }).catch((err) => {
+            console.error("Failed to fetch progress:", err);
+            if (isMounted) {
+                setProgress(getLocalProgress('guest_user') || getDefaultProgress('guest_user'));
+            }
+        });
+        return () => {
+            isMounted = false;
+            document.body.classList.remove('theme-blue');
+        };
     }, []);
 
     const handleCompleteLesson = async () => {

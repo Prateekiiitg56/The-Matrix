@@ -45,12 +45,23 @@ sys.stderr = io.StringIO()
     }
 }
 
-export async function checkVariable(varName) {
+export async function checkVariable(expr) {
     if (!pyodide) return undefined;
     try {
-        const val = pyodide.globals.get(varName);
+        const val = await pyodide.runPythonAsync(expr);
+        if (val && typeof val.toJs === 'function') {
+            return val.toJs();
+        }
         return val;
     } catch (e) {
-        return undefined;
+        try {
+            const val = pyodide.globals.get(expr);
+            if (val && typeof val.toJs === 'function') {
+                return val.toJs();
+            }
+            return val;
+        } catch (err) {
+            return undefined;
+        }
     }
 }

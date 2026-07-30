@@ -9,16 +9,7 @@ export const LEVELS = [
     { level: 6, title: "THE ONE", xpNeeded: 4000 }
 ];
 
-export async function fetchProgress(userId = 'guest_user') {
-    try {
-        const res = await fetch(`${API_URL}/${userId}`);
-        if (res.ok) {
-            return await res.json();
-        }
-    } catch (e) {
-        console.error("Failed to fetch progress from Construct Core", e);
-    }
-    // Fallback default
+export function getDefaultProgress(userId = 'guest_user') {
     return {
         userId,
         completedLessons: [],
@@ -29,23 +20,79 @@ export async function fetchProgress(userId = 'guest_user') {
     };
 }
 
-export async function updateProgress(userId = 'guest_user', updates) {
+export function getLocalProgress(userId = 'guest_user') {
     try {
-        // Check if XP crossed a level threshold
-        if (updates.xp !== undefined) {
-            const newLevel = LEVELS.slice().reverse().find(l => updates.xp >= l.xpNeeded)?.level || 1;
-            updates.level = newLevel;
+        const stored = localStorage.getItem(`matrix_progress_${userId}`);
+        if (stored) return JSON.parse(stored);
+    } catch (e) {
+        console.error("Failed to read local progress", e);
+    }
+    return null;
+}
+
+export function saveLocalProgress(userId = 'guest_user', data) {
+    try {
+        localStorage.setItem(`matrix_progress_${userId}`, JSON.stringify(data));
+    } catch (e) {
+        console.error("Failed to save local progress", e);
+    }
+}
+
+export async function fetchProgress(userId = 'guest_user') {
+    const local = getLocalProgress(userId);
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+        const res = await fetch(`${API_URL}/${userId}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+            const data = await res.json();
+            if (data) {
+                saveLocalProgress(userId, data);
+                return data;
+            }
         }
+    } catch (e) {
+        console.warn("Construct Core API unavailable, falling back to local state.", e);
+    }
+
+    return local || getDefaultProgress(userId);
+}
+
+export async function updateProgress(userId = 'guest_user', updates) {
+    const local = getLocalProgress(userId) || getDefaultProgress(userId);
+    const updatedLocal = { ...local, ...updates };
+
+    if (updatedLocal.xp !== undefined) {
+        const newLevel = LEVELS.slice().reverse().find(l => updatedLocal.xp >= l.xpNeeded)?.level || 1;
+        updatedLocal.level = newLevel;
+    }
+
+    saveLocalProgress(userId, updatedLocal);
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
 
         const res = await fetch(`${API_URL}/${userId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates)
+            body: JSON.stringify(updates),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
         if (res.ok) {
-            return await res.json();
+            const data = await res.json();
+            if (data) {
+                saveLocalProgress(userId, data);
+                return data;
+            }
         }
     } catch (e) {
-        console.error("Failed to update progress to Construct Core", e);
+        console.warn("Failed to sync progress to backend, using updated local state.", e);
     }
+
+    return updatedLocal;
 }
